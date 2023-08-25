@@ -21,13 +21,15 @@ class MainCollectionViewCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
-        label.font = UIFont.boldSystemFont(ofSize: 35)
+        label.font = UIFont.boldSystemFont(ofSize: 18)
         label.numberOfLines = 0
         label.shadowColor = .black
         label.shadowOffset = CGSize(width: 1, height: 1)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    let activityIndicatorView = UIActivityIndicatorView(style: .large)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -39,17 +41,37 @@ class MainCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private var task: Task<Void, Never>?
+    private var networkManager = NetworkManager()
     
-    public func configureCell(with poster: UIImage?, movieTitle: String) {
-        if let poster = poster {
-            posterImageView.image = poster
-        } else {
-            posterImageView.image = UIImage(named: "backup")
-        }
-        
-        titleLabel.text = movieTitle
+    func configure(with imageUrl: String, title: String) {
+        titleLabel.text = title
+        getImage(for: imageUrl)
     }
     
+    private func getImage(for imageUrl: String) {
+        task?.cancel()
+        
+        posterImageView.image = nil
+        activityIndicatorView.startAnimating()
+        
+        if let image = CacheManager.shared.get(key: imageUrl) {
+            self.activityIndicatorView.stopAnimating()
+            self.posterImageView.image = image
+        } else {
+            task = Task {
+                let image = await networkManager.fetchPoster(from: imageUrl)
+                await MainActor.run {
+                    self.activityIndicatorView.stopAnimating()
+                    self.posterImageView.image = image
+                    if let image {
+                        CacheManager.shared.add(key: imageUrl, value: image)
+                    }
+                }
+            }
+        }
+    }
+
     private func setupView() {
         contentView.layer.borderWidth = 8
         contentView.layer.borderColor = UIColor.white.cgColor
@@ -61,6 +83,7 @@ class MainCollectionViewCell: UICollectionViewCell {
         
         contentView.addSubview(posterImageView)
         contentView.addSubview(titleLabel)
+        contentView.addSubview(activityIndicatorView)
     }
     
     private func setConstraints() {
@@ -69,10 +92,15 @@ class MainCollectionViewCell: UICollectionViewCell {
         }
         
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(27)
-            make.bottom.equalToSuperview().offset(-27)
-            make.trailing.equalToSuperview().offset(-35)
+            make.leading.equalToSuperview().offset(13)
+            make.bottom.equalToSuperview().offset(-18)
+            make.trailing.equalToSuperview().offset(-20)
         }
+        
+        activityIndicatorView.snp.makeConstraints { make in
+            make.leading.trailing.top.bottom.equalToSuperview()
+        }
+        
     }
     
     

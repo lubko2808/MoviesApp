@@ -9,9 +9,9 @@ import UIKit
 
 class MainCollectionViewCell: UICollectionViewCell {
 
-    private let posterImageView: UIImageView = {
+    let posterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 30
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -41,11 +41,16 @@ class MainCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private var task: Task<Void, Never>?
+    private var task: Task<Void, Error>?
     private var networkManager = NetworkManager()
     
-    func configure(with imageUrl: String, title: String) {
+    func configure(with imageUrl: String?, title: String) {
         titleLabel.text = title
+        guard let imageUrl = imageUrl else {
+            activityIndicatorView.stopAnimating()
+            posterImageView.image = GlobalConstants.defaultImage
+            return
+        }
         getImage(for: imageUrl)
     }
     
@@ -60,7 +65,8 @@ class MainCollectionViewCell: UICollectionViewCell {
             self.posterImageView.image = image
         } else {
             task = Task {
-                let image = await networkManager.fetchPoster(from: imageUrl)
+                let image = await networkManager.fetchImage(from: imageUrl)
+                try Task.checkCancellation()
                 await MainActor.run {
                     self.activityIndicatorView.stopAnimating()
                     self.posterImageView.image = image
@@ -88,7 +94,7 @@ class MainCollectionViewCell: UICollectionViewCell {
     
     private func setConstraints() {
         posterImageView.snp.makeConstraints { make in
-            make.leading.trailing.top.bottom.equalToSuperview()
+            make.leading.trailing.top.bottom.equalToSuperview().inset(5)
         }
         
         titleLabel.snp.makeConstraints { make in

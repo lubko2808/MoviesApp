@@ -10,8 +10,6 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         return true
@@ -34,3 +32,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+
+
+
+
+//    func configureDataSource() {
+//        let cellRegistration = UICollectionView.CellRegistration
+//        <CustomCollectionViewCell, String> { (cell, indexPath, text) in
+//            // Populate the cell with our item description.
+//            cell..text = text
+//
+//            if self.expandedcell.contains(indexPath.item) {
+//                cell.textLbl.numberOfLines = 0
+//                cell.moreBtn.setTitle("See Less", for: .normal)
+//            } else {
+//                cell.textLbl.numberOfLines = 3
+//                cell.moreBtn.setTitle("See More", for: .normal)
+//            }
+//
+//            cell.butttonClicked = {
+//                if self.expandedcell.contains(indexPath.item) {
+//                    self.expandedcell.remove(indexPath.item)
+//                } else {
+//                    self.expandedcell.insert(indexPath.item)
+//                }
+//
+//                self.currentSnapshot.reloadItems([text])
+//                self.dataSource.apply(self.currentSnapshot, animatingDifferences: false)
+//            }
+//
+//        }

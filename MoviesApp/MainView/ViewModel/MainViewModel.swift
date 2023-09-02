@@ -11,14 +11,12 @@ class MainViewModel {
     
     private let networkManager: NetworkManager
     
-    var error = ObservableObject<String>("")
+    @Published var error: String = ""
     
-    var nowPlayingMovies = ObservableObject<[MovieItem]>([])
-    var upcomingMovies = ObservableObject<[MovieItem]>([])
-    var topRatedMovies = ObservableObject<[MovieItem]>([])
-    var popularMovies = ObservableObject<[MovieItem]>([])
-    
-    var posterImage = ObservableObject<(UIImage?, Int)>((nil, 0))
+    @Published var nowPlayingMovies: [MovieItem]?
+    @Published var upcomingMovies: [MovieItem]?
+    @Published var topRatedMovies: [MovieItem]?
+    @Published var popularMovies: [MovieItem]?
     
     init(networkManager: NetworkManager) {
         self.networkManager = networkManager
@@ -41,7 +39,6 @@ class MainViewModel {
             isNowPlayingPaginating = true
             
             do {
-                print("fetching")
                 let model: MovieModel = try await networkManager.fetch(.movieNowPlaying(page: page))
                 var movies: [MovieItem] = []
                 for movie in model.results {
@@ -49,12 +46,12 @@ class MainViewModel {
                 }
                 let sendableMovies = movies
                 await MainActor.run {
-                    self.nowPlayingMovies.value = sendableMovies
+                    self.nowPlayingMovies = sendableMovies
                 }
                 isNowPlayingPaginating = false
             } catch {
                 await MainActor.run {
-                    self.error.value = error.localizedDescription
+                    self.error = error.localizedDescription
                 }
             }
         }
@@ -72,12 +69,13 @@ class MainViewModel {
                 }
                 let sendableMovies = movies
                 await MainActor.run {
-                    self.upcomingMovies.value = sendableMovies
+                    self.upcomingMovies = sendableMovies
                 }
                 isUpcomingPaginating = false
             } catch {
                 await MainActor.run {
-                    self.error.value = error.localizedDescription
+                    self.error = error.localizedDescription
+
                 }
             }
         }
@@ -95,12 +93,13 @@ class MainViewModel {
                 }
                 let sendableMovies = movies
                 await MainActor.run {
-                    self.topRatedMovies.value = sendableMovies
+                    self.topRatedMovies = sendableMovies
                 }
                 isTopRatedPaginating = false
             } catch {
                 await MainActor.run {
-                    self.error.value = error.localizedDescription
+                    self.error = error.localizedDescription
+
                 }
             }
         }
@@ -118,12 +117,13 @@ class MainViewModel {
                 }
                 let sendableMovies = movies
                 await MainActor.run {
-                    self.popularMovies.value = sendableMovies
+                    self.popularMovies = sendableMovies
                 }
                 isPopularPaginating = false
             } catch {
                 await MainActor.run {
-                    self.error.value = error.localizedDescription
+                    self.error = error.localizedDescription
+
                 }
             }
         }

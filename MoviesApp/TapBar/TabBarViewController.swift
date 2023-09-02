@@ -12,8 +12,11 @@ class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+    
         let vc1 = MainViewController()
         let vc2 = SearchViewController()
+        
+        //let vc3 = DetailViewController(movieId: 157336, moviePoster: UIImage(named: "interstellar")!)
         let vc3 = FavoritesViewController()
         
         vc1.title = "Main"

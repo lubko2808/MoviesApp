@@ -6,10 +6,11 @@
 //
 
 import UIKit
+import Combine
 
 struct MovieItem: Hashable {
     let title: String
-    let posterPath: String
+    let posterPath: String?
     let id: Int
     
     let section: Categories
@@ -45,6 +46,8 @@ class MainViewController: UIViewController {
         static let sectionContentInset: CGFloat = 15
     }
     
+    private var subscription = Set<AnyCancellable>()
+    
     var dataSource: UICollectionViewDiffableDataSource<Categories, MovieItem>! = nil
     var currentSnapshot: NSDiffableDataSourceSnapshot<Categories, MovieItem>! = nil
 
@@ -64,33 +67,45 @@ class MainViewController: UIViewController {
 
     private func setupBinders() {
         
-        viewModel.error.bind { [weak self] errorMessage in
-            self?.showError(message: errorMessage)
-        }
+        viewModel.$error
+            .dropFirst()
+            .sink { [weak self] errorMessage in
+                self?.showError(message: errorMessage)
+            }
+            .store(in: &subscription)
         
-        viewModel.popularMovies.bind { [weak self] movies in
-            guard let self = self else { return }
-            self.currentSnapshot.appendItems(movies, toSection: .popularMovies)
-            self.dataSource.apply(self.currentSnapshot, animatingDifferences: true)
-        }
+        viewModel.$popularMovies
+            .sink { [weak self] movies in
+                guard let self = self else { return }
+                self.currentSnapshot.appendItems(movies ?? [], toSection: .popularMovies)
+                self.dataSource.apply(self.currentSnapshot, animatingDifferences: true)
+            }
+            .store(in: &subscription)
         
-        viewModel.upcomingMovies.bind { [weak self] movies in
-            guard let self = self else { return }
-            self.currentSnapshot.appendItems(movies, toSection: .upcomingMovies)
-            self.dataSource.apply(self.currentSnapshot, animatingDifferences: true)
-        }
-        
-        viewModel.topRatedMovies.bind { [weak self] movies in
-            guard let self = self else { return }
-            self.currentSnapshot.appendItems(movies, toSection: .topRatedMovies)
-            self.dataSource.apply(self.currentSnapshot, animatingDifferences: true)
-        }
-        
-        viewModel.nowPlayingMovies.bind{ [weak self] movies in
-            guard let self = self else { return }
-            self.currentSnapshot.appendItems(movies, toSection: .nowPlayingMovies)
-            self.dataSource.apply(self.currentSnapshot, animatingDifferences: true)
-        }
+        viewModel.$upcomingMovies
+            .sink { [weak self] movies in
+                guard let self = self else { return }
+                self.currentSnapshot.appendItems(movies ?? [], toSection: .upcomingMovies)
+                self.dataSource.apply(self.currentSnapshot, animatingDifferences: true)
+            }
+            .store(in: &subscription)
+
+        viewModel.$topRatedMovies
+            .sink { [weak self] movies in
+                guard let self = self else { return }
+                self.currentSnapshot.appendItems(movies ?? [], toSection: .topRatedMovies)
+                self.dataSource.apply(self.currentSnapshot, animatingDifferences: true)
+            }
+            .store(in: &subscription)
+
+        viewModel.$nowPlayingMovies
+            .sink { [weak self] movies in
+                guard let self = self else { return }
+                self.currentSnapshot.appendItems(movies ?? [], toSection: .nowPlayingMovies)
+                self.dataSource.apply(self.currentSnapshot, animatingDifferences: true)
+            }
+            .store(in: &subscription)
+
         
     }
     
@@ -105,6 +120,7 @@ class MainViewController: UIViewController {
         view.backgroundColor = .systemBackground
 
         collectionView.collectionViewLayout = createLayout()
+        collectionView.delegate = self
         view.addSubview(collectionView)
     }
     
@@ -114,6 +130,8 @@ class MainViewController: UIViewController {
         }
     }
     
+
+    
     private func configureDataSource() {
         
         let cellRegistration = UICollectionView.CellRegistration<MainCollectionViewCell, MovieItem> { cell, indexPath, movie in
@@ -121,7 +139,6 @@ class MainViewController: UIViewController {
         }
         dataSource = UICollectionViewDiffableDataSource(collectionView: collectionView) {
             (collectionView: UICollectionView, indexPath: IndexPath, movie: MovieItem) -> UICollectionViewCell? in
-            
             return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: movie)
         }
         
@@ -171,7 +188,6 @@ extension MainViewController {
             
             let titleSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
             let titleSupplementary = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: titleSize, elementKind: Constants.titleElementKind, alignment: .top)
-            
             section.boundarySupplementaryItems = [titleSupplementary]
             return section
         }
@@ -221,3 +237,17 @@ extension MainViewController {
     
 }
 
+// MARK: - U
+
+extension MainViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cell = collectionView.cellForItem(at: indexPath) as! MainCollectionViewCell
+        let section = currentSnapshot.sectionIdentifiers[indexPath.section]
+        let item = currentSnapshot.itemIdentifiers(inSection: section)[indexPath.item]
+        let id = item.id
+        let detailViewController = DetailViewController(movieId: id, moviePoster: cell.posterImageView.image ?? GlobalConstants.defaultImage)
+        navigationController?.present(detailViewController, animated: true)
+    }
+    
+}

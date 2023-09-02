@@ -13,6 +13,6 @@ struct MovieModel: Decodable {
 
 struct Movie: Decodable, Hashable {
     let title: String
-    let poster_path: String
+    let poster_path: String?
     let id: Int
 }

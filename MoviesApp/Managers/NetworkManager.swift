@@ -34,34 +34,47 @@ class NetworkManager {
         case movieUpcoming(page: Int)
         case movieTopRated(page: Int)
         case moviePopular(page: Int)
+        case movieInfo(id: Int)
+        case movieCast(id: Int)
+        case movieTrailers(id: Int)
+        case movieReviews(id: Int)
         
-        case poster(imageUrl: String)
+        case image(imageUrl: String)
         
         var url: URL {
             var components = URLComponents()
             components.scheme = "https"
             
-            if case .poster = self {
+            if case .image = self {
                 components.host = "image.tmdb.org"
             } else {
                 components.host = "api.themoviedb.org"
             }
             
+            components.queryItems = []
             switch self {
             case .movieNowPlaying(let page):
                 components.path = "/3/movie/now_playing"
-                components.queryItems = [URLQueryItem(name: "page", value: String(page))]
+                components.queryItems?.append(URLQueryItem(name: "page", value: String(page)))
             case .movieUpcoming(let page):
                 components.path = "/3/movie/upcoming"
-                components.queryItems = [URLQueryItem(name: "page", value: String(page))]
+                components.queryItems?.append(URLQueryItem(name: "page", value: String(page)))
             case .movieTopRated(let page):
                 components.path = "/3/movie/top_rated"
-                components.queryItems = [URLQueryItem(name: "page", value: String(page))]
+                components.queryItems?.append(URLQueryItem(name: "page", value: String(page)))
             case .moviePopular(let page):
                 components.path = "/3/movie/popular"
-                components.queryItems = [URLQueryItem(name: "page", value: String(page))]
-            case .poster(let imageUrl):
+                components.queryItems?.append(URLQueryItem(name: "page", value: String(page)))
+            case .image(let imageUrl):
                 components.path = "/t/p/w500/\(imageUrl)"
+            case .movieInfo(let id):
+                components.path = "/3/movie/\(id)"
+            case .movieCast(let id):
+                components.path = "/3/movie/\(id)/credits"
+            case .movieTrailers(let id):
+                components.path = "/3/movie/\(id)/videos"
+            case .movieReviews(let id):
+                components.path = "/3/movie/\(id)/reviews"
             }
             
             components.queryItems?.append(URLQueryItem(name: "api_key", value: "7f798f1c6fb6a8225bffe3565f4a5ec2"))
@@ -76,22 +89,20 @@ extension NetworkManager {
     func fetch<Response: Decodable>(_ endpoint: Endpoint) async throws -> Response {
         let urlRequest = URLRequest(url: endpoint.url)
         
-        print("urlRequest: \(urlRequest.url?.absoluteString)")
-
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
-        
+                
         guard let response = response as? HTTPURLResponse, response.statusCode >= 200 && response.statusCode < 300 else {
             let response = response as? HTTPURLResponse
-            print("response: \(String(describing: response?.statusCode))")
+            
             throw URLError(.badServerResponse)
         }
-        
+
         let result = try JSONDecoder().decode(Response.self, from: data)
-        
+        print("here")
         return result
     }
     
-    func fetchPoster(from urlString: String) async -> UIImage? {
+    func fetchImage(from urlString: String) async -> UIImage? {
         let urlString = "https://image.tmdb.org/t/p/w500/\(urlString)"
         guard let url = URL(string: urlString) else { return nil }
         

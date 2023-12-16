@@ -15,7 +15,5 @@ class MovieListsViewController: UIViewController {
 
     }
     
-
-
 }
 

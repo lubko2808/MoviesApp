@@ -16,8 +16,8 @@ extension MovieList {
         return NSFetchRequest<MovieList>(entityName: "MovieList")
     }
 
-    @NSManaged public var name: String?
-    @NSManaged public var movies: NSSet?
+    @NSManaged public var name: String
+    @NSManaged public var movies: NSSet
 
 }
 

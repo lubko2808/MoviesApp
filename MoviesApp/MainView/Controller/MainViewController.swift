@@ -176,7 +176,6 @@ class MainViewController: UIViewController {
 
 extension MainViewController {
     
-    
     private func createLayout() -> UICollectionViewCompositionalLayout {
        
         let sectionProvider = { (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
@@ -259,41 +258,5 @@ extension MainViewController: UICollectionViewDelegate {
         let detailViewController = DetailViewController(movieId: id, moviePoster: cell.posterImageView.image ?? GlobalConstants.defaultImage)
         navigationController?.present(detailViewController, animated: true)
     }
-    
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        
-        guard !indexPaths.isEmpty else { return nil }
-        let indexPath = indexPaths[0]
-
-        guard let cell = collectionView.cellForItem(at: indexPath) as? MainCollectionViewCell else { return nil }
-        guard let section = Categories.intToCategories(section: indexPath.section) else { return nil }
-        let itemInfo = self.currentSnapshot.itemIdentifiers(inSection: section)[indexPath.item]
-
-
-        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
-            guard let self = self else { return nil }
-
-            let open = UIAction(
-                title: "Share",
-                state: .off
-            ) { _ in }
-
-            let favorites = UIAction(
-                title: self.coreDataManager.isInStorage(movieId: itemInfo.id) ? "Remove Favorite" : "Favorites",
-                image: UIImage(systemName: "heart"),
-                state: .off
-            ) { _ in
-                self.coreDataManager.createNote(
-                    title: itemInfo.title ,
-                    poster: cell.posterImageView.image,
-                    id: itemInfo.id)
-            }
-
-            return UIMenu(title: "Actions", identifier: nil, options: UIMenu.Options.displayInline, children: [open, favorites])
-        }
-
-        return config
-        
-    }
-    
+   
 }

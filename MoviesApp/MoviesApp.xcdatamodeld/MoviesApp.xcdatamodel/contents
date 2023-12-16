@@ -8,7 +8,7 @@
         <relationship name="movieLists" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MovieList" inverseName="movies" inverseEntity="MovieList"/>
     </entity>
     <entity name="MovieList" representedClassName="MovieList" syncable="YES">
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
         <relationship name="movies" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Movie" inverseName="movieLists" inverseEntity="Movie"/>
     </entity>
 </model>

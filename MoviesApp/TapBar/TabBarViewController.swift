@@ -17,7 +17,7 @@ class TabBarViewController: UITabBarController {
         let vc2 = SearchViewController()
         
         //let vc3 = DetailViewController(movieId: 157336, moviePoster: UIImage(named: "interstellar")!)
-        let vc3 = FavoritesViewController()
+        let vc3 = MovieListsViewController()
         
         vc1.title = "Main"
         vc2.title = "Search"

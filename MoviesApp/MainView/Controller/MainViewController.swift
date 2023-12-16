@@ -21,11 +21,23 @@ enum Categories: String {
     case upcomingMovies = "Upcoming"
     case topRatedMovies = "Top Rated"
     case popularMovies = "Popular"
+    
+    static func intToCategories(section: Int) -> Categories? {
+        switch section {
+        case 0: return .nowPlayingMovies
+        case 1: return .upcomingMovies
+        case 2: return .topRatedMovies
+        case 3: return .popularMovies
+        default: return nil
+        }
+    }
+    
 }
 
 class MainViewController: UIViewController {
     
     private let viewModel = MainViewModel(networkManager: NetworkManager())
+    private let coreDataManager = CoreDataManager.shared
     
     private let collectionView: UICollectionView = {
         let collectionViewLayout = UICollectionViewLayout()
@@ -130,8 +142,6 @@ class MainViewController: UIViewController {
         }
     }
     
-
-    
     private func configureDataSource() {
         
         let cellRegistration = UICollectionView.CellRegistration<MainCollectionViewCell, MovieItem> { cell, indexPath, movie in
@@ -165,7 +175,6 @@ class MainViewController: UIViewController {
 // MARK: - Create Layout
 
 extension MainViewController {
-    
     
     private func createLayout() -> UICollectionViewCompositionalLayout {
        
@@ -237,7 +246,7 @@ extension MainViewController {
     
 }
 
-// MARK: - U
+// MARK: - UICollectionViewDelegate
 
 extension MainViewController: UICollectionViewDelegate {
     
@@ -249,5 +258,5 @@ extension MainViewController: UICollectionViewDelegate {
         let detailViewController = DetailViewController(movieId: id, moviePoster: cell.posterImageView.image ?? GlobalConstants.defaultImage)
         navigationController?.present(detailViewController, animated: true)
     }
-    
+   
 }

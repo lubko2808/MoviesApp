@@ -8,10 +8,10 @@
 import Foundation
 
 struct MovieModel: Decodable {
-    let results: [Movie]
+    let results: [MovieInfo]
 }
 
-struct Movie: Decodable, Hashable {
+struct MovieInfo: Decodable, Hashable {
     let title: String
     let poster_path: String?
     let id: Int

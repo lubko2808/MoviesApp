@@ -49,6 +49,11 @@
 		B69F81402B2F76F2003BCBDF /* ListsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69F813F2B2F76F2003BCBDF /* ListsViewController.swift */; };
 		B69F81422B2F7771003BCBDF /* ListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69F81412B2F7771003BCBDF /* ListTableViewCell.swift */; };
 		B69F81442B2F7B9C003BCBDF /* PopUpWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69F81432B2F7B9C003BCBDF /* PopUpWindow.swift */; };
+		B69F81462B2F91A6003BCBDF /* CustomTabItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69F81452B2F91A6003BCBDF /* CustomTabItem.swift */; };
+		B69F81482B2F91B1003BCBDF /* CustomItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69F81472B2F91B1003BCBDF /* CustomItemView.swift */; };
+		B69F814A2B2F91BD003BCBDF /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69F81492B2F91BD003BCBDF /* CustomTabBar.swift */; };
+		B69F814D2B2F93B7003BCBDF /* RxGesture in Frameworks */ = {isa = PBXBuildFile; productRef = B69F814C2B2F93B7003BCBDF /* RxGesture */; };
+		B69F814F2B2F942A003BCBDF /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69F814E2B2F942A003BCBDF /* UIView+Extension.swift */; };
 		B6B848E22AA4B605001BDA97 /* MoviesApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B6B848E02AA4B605001BDA97 /* MoviesApp.xcdatamodeld */; };
 		B6EF893A2A89623A00CA5C44 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EF89392A89623A00CA5C44 /* AppDelegate.swift */; };
 		B6EF893C2A89623A00CA5C44 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EF893B2A89623A00CA5C44 /* SceneDelegate.swift */; };
@@ -96,6 +101,10 @@
 		B69F813F2B2F76F2003BCBDF /* ListsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListsViewController.swift; sourceTree = "<group>"; };
 		B69F81412B2F7771003BCBDF /* ListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListTableViewCell.swift; sourceTree = "<group>"; };
 		B69F81432B2F7B9C003BCBDF /* PopUpWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpWindow.swift; sourceTree = "<group>"; };
+		B69F81452B2F91A6003BCBDF /* CustomTabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabItem.swift; sourceTree = "<group>"; };
+		B69F81472B2F91B1003BCBDF /* CustomItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomItemView.swift; sourceTree = "<group>"; };
+		B69F81492B2F91BD003BCBDF /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
+		B69F814E2B2F942A003BCBDF /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
 		B6B848E12AA4B605001BDA97 /* MoviesApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MoviesApp.xcdatamodel; sourceTree = "<group>"; };
 		B6EF89362A89623A00CA5C44 /* MoviesApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MoviesApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6EF89392A89623A00CA5C44 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -113,6 +122,7 @@
 			files = (
 				B683FEEA2B2E4CD9003BA08A /* RxRelay in Frameworks */,
 				B683FEE82B2E4CD9003BA08A /* RxCocoa in Frameworks */,
+				B69F814D2B2F93B7003BCBDF /* RxGesture in Frameworks */,
 				B683FEEC2B2E4CD9003BA08A /* RxSwift in Frameworks */,
 				B66571962A9E248700CDFF2E /* SnapKit-Dynamic in Frameworks */,
 			);
@@ -126,6 +136,7 @@
 			children = (
 				B60D7AC32AA27A2700E9114F /* GlobalConstants.swift */,
 				B6711AFC2B2E586B00171C4D /* UIImage+Extension.swift */,
+				B69F814E2B2F942A003BCBDF /* UIView+Extension.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -188,6 +199,9 @@
 			isa = PBXGroup;
 			children = (
 				B679E0DD2A95036B00452F89 /* TabBarViewController.swift */,
+				B69F81452B2F91A6003BCBDF /* CustomTabItem.swift */,
+				B69F81472B2F91B1003BCBDF /* CustomItemView.swift */,
+				B69F81492B2F91BD003BCBDF /* CustomTabBar.swift */,
 			);
 			path = TapBar;
 			sourceTree = "<group>";
@@ -402,6 +416,7 @@
 				B683FEE72B2E4CD9003BA08A /* RxCocoa */,
 				B683FEE92B2E4CD9003BA08A /* RxRelay */,
 				B683FEEB2B2E4CD9003BA08A /* RxSwift */,
+				B69F814C2B2F93B7003BCBDF /* RxGesture */,
 			);
 			productName = MoviesApp;
 			productReference = B6EF89362A89623A00CA5C44 /* MoviesApp.app */;
@@ -433,8 +448,8 @@
 			mainGroup = B6EF892D2A89623A00CA5C44;
 			packageReferences = (
 				B66571942A9E248700CDFF2E /* XCRemoteSwiftPackageReference "SnapKit" */,
-				B683FEE52B2E4BF0003BA08A /* XCRemoteSwiftPackageReference "RxGesture" */,
 				B683FEE62B2E4CD9003BA08A /* XCRemoteSwiftPackageReference "RxSwift" */,
+				B69F814B2B2F93B7003BCBDF /* XCRemoteSwiftPackageReference "RxGesture" */,
 			);
 			productRefGroup = B6EF89372A89623A00CA5C44 /* Products */;
 			projectDirPath = "";
@@ -472,12 +487,14 @@
 				B680D9062A9B97F400F95797 /* MovieReviewsModel.swift in Sources */,
 				B679E0DE2A95036B00452F89 /* TabBarViewController.swift in Sources */,
 				B67FCFB32A9D1FF300C56823 /* DetailViewModel.swift in Sources */,
+				B69F814F2B2F942A003BCBDF /* UIView+Extension.swift in Sources */,
 				B67A80882B2B0A4C00D95358 /* MovieList+CoreDataClass.swift in Sources */,
 				B680D9142A9BE67100F95797 /* MovieCastModel.swift in Sources */,
 				B6EF893E2A89623A00CA5C44 /* MainViewController.swift in Sources */,
 				B68614CC2A98FC710074F3F4 /* CacheManager.swift in Sources */,
 				B60D7AC42AA27A2700E9114F /* GlobalConstants.swift in Sources */,
 				B6711AF52B2E555C00171C4D /* CustomTextField.swift in Sources */,
+				B69F81482B2F91B1003BCBDF /* CustomItemView.swift in Sources */,
 				B674214B2A95246700380ABF /* NetworkManager.swift in Sources */,
 				B623AE6E2A964215007440A3 /* MainViewModel.swift in Sources */,
 				B674214D2A9524CC00380ABF /* MovieModel.swift in Sources */,
@@ -487,10 +504,12 @@
 				B680D9042A9B97E600F95797 /* MovieTrailersModel.swift in Sources */,
 				B6760E7B2AA4F5C500C3554D /* Movie+CoreDataClass.swift in Sources */,
 				B6711AF32B2E54CA00171C4D /* MovieListsSectionTitle.swift in Sources */,
+				B69F81462B2F91A6003BCBDF /* CustomTabItem.swift in Sources */,
 				B6711AF12B2E537E00171C4D /* TagCollectionViewCell.swift in Sources */,
 				B69F81442B2F7B9C003BCBDF /* PopUpWindow.swift in Sources */,
 				B67F32542A9766BD00C82501 /* TitleSupplementaryView.swift in Sources */,
 				B680D9122A9BE3FE00F95797 /* CommentCollectionViewCell.swift in Sources */,
+				B69F814A2B2F91BD003BCBDF /* CustomTabBar.swift in Sources */,
 				B67A80892B2B0A4C00D95358 /* MovieList+CoreDataProperties.swift in Sources */,
 				B63E301A2A9A93D500CB1458 /* ExtendedMovieModel.swift in Sources */,
 				B6760E7C2AA4F5C500C3554D /* Movie+CoreDataProperties.swift in Sources */,
@@ -721,17 +740,17 @@
 				kind = branch;
 			};
 		};
-		B683FEE52B2E4BF0003BA08A /* XCRemoteSwiftPackageReference "RxGesture" */ = {
+		B683FEE62B2E4CD9003BA08A /* XCRemoteSwiftPackageReference "RxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/RxSwiftCommunity/RxGesture";
+			repositoryURL = "https://github.com/ReactiveX/RxSwift";
 			requirement = {
 				branch = main;
 				kind = branch;
 			};
 		};
-		B683FEE62B2E4CD9003BA08A /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+		B69F814B2B2F93B7003BCBDF /* XCRemoteSwiftPackageReference "RxGesture" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ReactiveX/RxSwift";
+			repositoryURL = "https://github.com/RxSwiftCommunity/RxGesture";
 			requirement = {
 				branch = main;
 				kind = branch;
@@ -759,6 +778,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B683FEE62B2E4CD9003BA08A /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxSwift;
+		};
+		B69F814C2B2F93B7003BCBDF /* RxGesture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B69F814B2B2F93B7003BCBDF /* XCRemoteSwiftPackageReference "RxGesture" */;
+			productName = RxGesture;
 		};
 /* End XCSwiftPackageProductDependency section */
 

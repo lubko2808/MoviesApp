@@ -38,6 +38,11 @@ struct Item: Hashable {
 
 }
 
+protocol DetailViewControllerDelegate: AnyObject {
+    func detailViewDidDismiss()
+}
+
+
 class DetailViewController: UIViewController {
 
     private let viewModel = DetailViewModel(networkManager: NetworkManager())
@@ -388,17 +393,14 @@ extension DetailViewController {
         return layout
 
     }
-
-
-
-
-
-
 }
 
 
-
-
+extension MainViewController: DetailViewControllerDelegate {
+    func detailViewDidDismiss() {
+        didTransitionSubject.send()
+    }
+}
 
 
 

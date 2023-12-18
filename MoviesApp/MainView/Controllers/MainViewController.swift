@@ -68,6 +68,8 @@ class MainViewController: UIViewController {
     
     var dataSource: UICollectionViewDiffableDataSource<Categories, MovieItem>! = nil
     var currentSnapshot: NSDiffableDataSourceSnapshot<Categories, MovieItem>! = nil
+    
+    public let didTransitionSubject = PassthroughSubject<Void, Never>()
 
     override func viewDidLoad() {
         super.viewDidLoad()        

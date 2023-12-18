@@ -44,7 +44,7 @@ class MainCollectionViewCell: UICollectionViewCell {
     private var task: Task<Void, Error>?
     private var networkManager = NetworkManager()
     
-    func configure(with imageUrl: String?, title: String) {
+    public func configure(with imageUrl: String?, title: String) {
         titleLabel.text = title
         guard let imageUrl = imageUrl else {
             activityIndicatorView.stopAnimating()
@@ -52,6 +52,18 @@ class MainCollectionViewCell: UICollectionViewCell {
             return
         }
         getImage(for: imageUrl)
+    }
+    
+    public func configure(with image: UIImage?, title: String) {
+        posterImageView.layer.cornerRadius = 30
+        contentView.layer.borderWidth = 8
+        contentView.layer.cornerRadius = 30
+        posterImageView.snp.makeConstraints { make in
+            make.leading.trailing.top.bottom.equalToSuperview().inset(5)
+        }
+        posterImageView.image = image ?? GlobalConstants.defaultImage
+        
+        titleLabel.text = title
     }
     
     private func getImage(for imageUrl: String) {

@@ -29,6 +29,8 @@
 		B6760E7B2AA4F5C500C3554D /* Movie+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6760E792AA4F5C500C3554D /* Movie+CoreDataClass.swift */; };
 		B6760E7C2AA4F5C500C3554D /* Movie+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6760E7A2AA4F5C500C3554D /* Movie+CoreDataProperties.swift */; };
 		B6760E7F2AA4FE0F00C3554D /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6760E7E2AA4FE0F00C3554D /* CoreDataManager.swift */; };
+		B677B5412B30A63E00672B11 /* TransitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B677B5402B30A63D00672B11 /* TransitionManager.swift */; };
+		B677B5432B30A6D800672B11 /* UIWindow+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B677B5422B30A6D800672B11 /* UIWindow+Extension.swift */; };
 		B679E0DE2A95036B00452F89 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B679E0DD2A95036B00452F89 /* TabBarViewController.swift */; };
 		B67A80882B2B0A4C00D95358 /* MovieList+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67A80862B2B0A4C00D95358 /* MovieList+CoreDataClass.swift */; };
 		B67A80892B2B0A4C00D95358 /* MovieList+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67A80872B2B0A4C00D95358 /* MovieList+CoreDataProperties.swift */; };
@@ -84,6 +86,8 @@
 		B6760E792AA4F5C500C3554D /* Movie+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Movie+CoreDataClass.swift"; sourceTree = "<group>"; };
 		B6760E7A2AA4F5C500C3554D /* Movie+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Movie+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B6760E7E2AA4FE0F00C3554D /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		B677B5402B30A63D00672B11 /* TransitionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitionManager.swift; sourceTree = "<group>"; };
+		B677B5422B30A6D800672B11 /* UIWindow+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIWindow+Extension.swift"; sourceTree = "<group>"; };
 		B679E0DD2A95036B00452F89 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		B67A80862B2B0A4C00D95358 /* MovieList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MovieList+CoreDataClass.swift"; sourceTree = "<group>"; };
 		B67A80872B2B0A4C00D95358 /* MovieList+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MovieList+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -137,6 +141,7 @@
 				B60D7AC32AA27A2700E9114F /* GlobalConstants.swift */,
 				B6711AFC2B2E586B00171C4D /* UIImage+Extension.swift */,
 				B69F814E2B2F942A003BCBDF /* UIView+Extension.swift */,
+				B677B5422B30A6D800672B11 /* UIWindow+Extension.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -191,6 +196,7 @@
 				B674214A2A95246700380ABF /* NetworkManager.swift */,
 				B68614CB2A98FC710074F3F4 /* CacheManager.swift */,
 				B6760E7E2AA4FE0F00C3554D /* CoreDataManager.swift */,
+				B677B5402B30A63D00672B11 /* TransitionManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -494,12 +500,14 @@
 				B68614CC2A98FC710074F3F4 /* CacheManager.swift in Sources */,
 				B60D7AC42AA27A2700E9114F /* GlobalConstants.swift in Sources */,
 				B6711AF52B2E555C00171C4D /* CustomTextField.swift in Sources */,
+				B677B5432B30A6D800672B11 /* UIWindow+Extension.swift in Sources */,
 				B69F81482B2F91B1003BCBDF /* CustomItemView.swift in Sources */,
 				B674214B2A95246700380ABF /* NetworkManager.swift in Sources */,
 				B623AE6E2A964215007440A3 /* MainViewModel.swift in Sources */,
 				B674214D2A9524CC00380ABF /* MovieModel.swift in Sources */,
 				B6EF893A2A89623A00CA5C44 /* AppDelegate.swift in Sources */,
 				B6B848E22AA4B605001BDA97 /* MoviesApp.xcdatamodeld in Sources */,
+				B677B5412B30A63E00672B11 /* TransitionManager.swift in Sources */,
 				B6711AF92B2E567F00171C4D /* DefaultCollectionViewCell.swift in Sources */,
 				B680D9042A9B97E600F95797 /* MovieTrailersModel.swift in Sources */,
 				B6760E7B2AA4F5C500C3554D /* Movie+CoreDataClass.swift in Sources */,
@@ -590,7 +598,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -644,7 +652,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

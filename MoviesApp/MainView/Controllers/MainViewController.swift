@@ -38,6 +38,7 @@ class MainViewController: UIViewController {
     
     private let viewModel = MainViewModel(networkManager: NetworkManager())
     private let coreDataManager = CoreDataManager.shared
+    private let transitionManager = TransitionManager()
     
     private let popUpWindow: PopUpWindow = {
         let view = PopUpWindow(frame: .zero)
@@ -70,6 +71,8 @@ class MainViewController: UIViewController {
     var currentSnapshot: NSDiffableDataSourceSnapshot<Categories, MovieItem>! = nil
     
     public let didTransitionSubject = PassthroughSubject<Void, Never>()
+    
+    private var contentOffsetsX: [CGFloat] = [0, 0, 0, 0]
 
     override func viewDidLoad() {
         super.viewDidLoad()        
@@ -216,7 +219,8 @@ extension MainViewController {
     }
     
     private func horizontalSectionDidScroll(visibleItems: [NSCollectionLayoutVisibleItem], point: CGPoint, environment: NSCollectionLayoutEnvironment, sectionIndex: Int) {
-        let position = point.x
+        let contentOffset = point.x
+        setOffset(for: sectionIndex, offset: contentOffset)
         guard let itemWidth = visibleItems.last?.frame.width else { return }
         var section: Categories
         switch sectionIndex {
@@ -231,7 +235,7 @@ extension MainViewController {
         if amountOfItemsInSection == 0 { return }
         let contentSize = CGFloat(amountOfItemsInSection) * itemWidth + (2 * Constants.sectionContentInset) + ((CGFloat(amountOfItemsInSection) - 1) * Constants.interGroupSpacing)
 
-        if position > (contentSize + 20 - environment.container.contentSize.width) {
+        if contentOffset > (contentSize + 20 - environment.container.contentSize.width) {
             switch sectionIndex {
             case 0:
                 guard !self.viewModel.isNowPlayingPaginating else { return }
@@ -286,6 +290,48 @@ extension MainViewController: ListsViewControllerDelegate {
     }
 }
 
+// MARK: - Transition animation
+extension MainViewController {
+    public func selectedCell() -> MainCollectionViewCell? {
+        guard let indexPath = collectionView.indexPathsForSelectedItems?.first else { return nil }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MainCollectionViewCell else { return nil }
+        return cell
+    }
+    
+    public func getOrigin() -> CGPoint? {
+        guard let indexPath = collectionView.indexPathsForSelectedItems?.first else { return nil }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? MainCollectionViewCell else { return nil }
+
+        let contentOffsetY = collectionView.contentOffset.y
+        let contentOffsetX = getOffset(for: indexPath.section)
+        print("cell.frame.origin.x: \(cell.frame.origin.x)")
+        print("cell.frame.origin.y: \(cell.frame.origin.y)")
+        print("contentOffsetX: \(contentOffsetX)")
+        let origin = CGPoint(x: cell.frame.origin.x - contentOffsetX, y: cell.frame.origin.y - contentOffsetY)
+        return origin
+    }
+    
+    private func getOffset(for section: Int) -> CGFloat {
+        switch(section) {
+        case 0: return contentOffsetsX[section]
+        case 1: return contentOffsetsX[section]
+        case 2: return contentOffsetsX[section]
+        case 3: return contentOffsetsX[section]
+        default: return CGFloat()
+        }
+    }
+    
+    private func setOffset(for section: Int, offset: CGFloat) {
+        switch(section) {
+        case 0: contentOffsetsX[section] = offset
+        case 1: contentOffsetsX[section] = offset
+        case 2: contentOffsetsX[section] = offset
+        case 3: contentOffsetsX[section] = offset
+        default: break
+        }
+    }
+}
+
 // MARK: - UICollectionViewDelegate
 
 extension MainViewController: UICollectionViewDelegate {
@@ -296,7 +342,12 @@ extension MainViewController: UICollectionViewDelegate {
         let item = currentSnapshot.itemIdentifiers(inSection: section)[indexPath.item]
         let id = item.id
         let detailViewController = DetailViewController(movieId: id, moviePoster: cell.posterImageView.image ?? GlobalConstants.defaultImage)
-        navigationController?.present(detailViewController, animated: true)
+        detailViewController.modalPresentationStyle = .overCurrentContext
+        detailViewController.transitioningDelegate = transitionManager
+        detailViewController.delegate = self
+        didTransitionSubject.send()
+        present(detailViewController, animated: true, completion: nil)
+        CFRunLoopWakeUp(CFRunLoopGetCurrent())
     }
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {

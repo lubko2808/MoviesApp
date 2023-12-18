@@ -8,6 +8,21 @@
 import UIKit
 
 extension UIView {
+    
+    func createSnapshot() -> UIImage? {
+        
+        UIGraphicsBeginImageContextWithOptions(frame.size, false, 0.0)
+        drawHierarchy(in: frame, afterScreenUpdates: true)
+        
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return image
+    }
+    
+}
+
+extension UIView {
     func setupCornerRadius(_ cornerRadius: CGFloat = 0, maskedCorners: CACornerMask? = nil) {
         layer.cornerRadius = cornerRadius
         if let corners = maskedCorners {

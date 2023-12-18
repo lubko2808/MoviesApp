@@ -92,23 +92,17 @@ struct DetailCollectionViewCellConfiguration {
 
 class DetailCollectionViewCell: UICollectionViewCell {
     
-    private let posterImageView: UIImageView = {
+    let posterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.layer.cornerRadius = 20
         imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
+        imageView.clipsToBounds = false
+        imageView.layer.shadowColor = UIColor.black.cgColor
+        imageView.layer.shadowOpacity = 0.8
+        imageView.layer.shadowOffset = CGSize(width: 5, height: 3)
+        imageView.layer.shadowRadius = 3
         return imageView
     }()
-    
-    private let posterWrapperView: UIView = {
-        let view = UIView()
-        view.clipsToBounds = false
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.8
-        view.layer.shadowOffset = CGSize(width: 5, height: 3)
-        view.layer.shadowRadius = 3
-        return view
-    }()
+
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -177,13 +171,12 @@ class DetailCollectionViewCell: UICollectionViewCell {
     private func setupViews() {
         contentView.layer.cornerRadius = 20
         contentView.layer.masksToBounds = false
-        contentView.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        contentView.backgroundColor = UIColor.white
         contentView.layer.shadowColor = UIColor.black.cgColor
         contentView.layer.shadowRadius = 5
         contentView.layer.shadowOpacity = 0.8
         
-        posterWrapperView.addSubview(posterImageView)
-        contentView.addSubview(posterWrapperView)
+        contentView.addSubview(posterImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(taglineLabel)
         contentView.addSubview(starsStackView)
@@ -197,44 +190,42 @@ class DetailCollectionViewCell: UICollectionViewCell {
     
     private func setupConstraints() {
         posterImageView.snp.makeConstraints { make in
-            make.top.leading.trailing.bottom.equalToSuperview()
-        }
-        
-        posterWrapperView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(20)
             make.leading.equalToSuperview().offset(10)
             make.width.equalTo(Constants.posterImageViewSize)
             make.height.equalTo(Constants.posterImageViewSize * Constants.posterImageAspectRatio)
+            make.bottom.lessThanOrEqualToSuperview().offset(-15)
         }
         
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(20)
             make.trailing.equalToSuperview().offset(-5)
-            make.leading.equalTo(posterWrapperView.snp.trailing).offset(10)
+            make.leading.equalTo(posterImageView.snp.trailing).offset(10)
         }
         
         taglineLabel.snp.makeConstraints { make in
-            make.leading.equalTo(posterWrapperView.snp.trailing).offset(10)
+            make.leading.equalTo(posterImageView.snp.trailing).offset(10)
             make.top.equalTo(titleLabel.snp.bottom).offset(10)
             make.trailing.equalToSuperview().offset(-10)
         }
         
         starsStackView.snp.makeConstraints { make in
-            make.leading.equalTo(posterWrapperView.snp.trailing).offset(10)
+            make.leading.equalTo(posterImageView.snp.trailing).offset(10)
             make.top.equalTo(taglineLabel.snp.bottom).offset(15)
-            make.trailing.equalToSuperview().offset(-30)
+            make.width.equalTo(120)
         }
         
         genresLabel.snp.makeConstraints { make in
-            make.leading.equalTo(posterWrapperView.snp.trailing).offset(10)
+            make.leading.equalTo(posterImageView.snp.trailing).offset(10)
             make.top.equalTo(starsStackView.snp.bottom).offset(15)
             make.trailing.equalToSuperview().offset(-10)
         }
         
         durationLabel.snp.makeConstraints { make in
-            make.leading.equalTo(posterWrapperView.snp.trailing).offset(10)
+            make.leading.equalTo(posterImageView.snp.trailing).offset(10)
             make.top.equalTo(genresLabel.snp.bottom).offset(15)
             make.trailing.equalToSuperview().offset(-20)
+            make.bottom.lessThanOrEqualToSuperview().offset(-10)
         }
     
         

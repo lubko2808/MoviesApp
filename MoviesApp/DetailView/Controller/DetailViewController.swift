@@ -49,9 +49,12 @@ class DetailViewController: UIViewController {
 
     var dataSource: UICollectionViewDiffableDataSource<Section, Item>! = nil
     var currentSnapshot: NSDiffableDataSourceSnapshot<Section, Item>! = nil
+    weak var delegate: DetailViewControllerDelegate?
 
     enum Constants {
         static let titleElementKind = "title-element-kind"
+        static let collectionViewContentInset: CGFloat = 30
+        static let closeButtonWidth: CGFloat = 30
     }
 
     let movieId: Int
@@ -78,6 +81,46 @@ class DetailViewController: UIViewController {
         collectionView.isHidden = true
         return collectionView
     }()
+    
+    private lazy var closeButton: UIButton = {
+        let button = UIButton()
+        if self.traitCollection.userInterfaceStyle == .light {
+            button.setImage(UIImage(named: "darkOnLight"), for: .normal)
+        } else {
+            button.setImage(UIImage(named: "lightOnDark"), for: .normal)
+        }
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(close), for: .touchUpInside)
+        return button
+    }()
+    
+    lazy var snapshotView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.clipsToBounds = true
+        imageView.backgroundColor = .white
+        imageView.layer.shadowColor = UIColor.black.cgColor
+        imageView.layer.shadowOpacity = 0.2
+        imageView.layer.shadowRadius = 10.0
+        imageView.layer.shadowOffset = CGSize(width: -1, height: 2)
+        imageView.isHidden = true
+        return imageView
+    }()
+
+    var viewsAreHidden: Bool = false {
+        didSet {
+            closeButton.isHidden = viewsAreHidden
+            
+            for cell in collectionView.visibleCells {
+                cell.isHidden = viewsAreHidden
+            }
+            
+            for header in collectionView.visibleSupplementaryViews(ofKind: Constants.titleElementKind) {
+                header.isHidden = viewsAreHidden
+            }
+        
+            view.backgroundColor = viewsAreHidden ? .clear : .white
+        }
+    }
 
     var expandedcell: IndexSet = []
     var subscriptions = Set<AnyCancellable>()
@@ -87,14 +130,13 @@ class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         activityIndicatorView.startAnimating()
-        
+        collectionView.delegate = self
         setupViews()
         setConstraints()
         configureDataSource()
-
         setupBinders()
         viewModel.fetchInfo(id: movieId)
-        
+        collectionView.contentInset = .init(top: Constants.collectionViewContentInset, left: 0, bottom: 0, right: 0)
     }
   
     private func setupBinders() {
@@ -181,7 +223,7 @@ class DetailViewController: UIViewController {
         view.backgroundColor = .systemBackground
         collectionView.collectionViewLayout = createLayout()
         view.addSubview(collectionView)
-        view.addSubview(activityIndicatorView)
+        view.addSubview(closeButton)
     }
 
     private func setConstraints() {
@@ -189,10 +231,88 @@ class DetailViewController: UIViewController {
             make.leading.trailing.top.bottom.equalToSuperview()
         }
         
-        activityIndicatorView.snp.makeConstraints { make in
-            make.leading.trailing.top.bottom.equalToSuperview()
+        closeButton.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.trailing.equalToSuperview().inset(20)
+            make.width.height.equalTo(Constants.closeButtonWidth)
+            
+        }
+        
+    }
+    
+    @objc func close() {
+        delegate?.detailViewDidDismiss()
+        dismiss(animated: true)
+    }
+    
+    func createSnapshotOfView() {
+    
+        let snapshotImage = self.view.createSnapshot()
+
+        snapshotView.image = snapshotImage
+        collectionView.addSubview(snapshotView)
+
+        let topPadding = UIWindow.topPadding
+        snapshotView.frame = CGRect(x: 0, y: -topPadding, width: view.frame.size.width, height: view.frame.size.height)
+
+    }
+    
+    public func getPosterView() -> UIImageView {
+        if let detailCollectionViewCell = collectionView.visibleCells[0] as? DetailCollectionViewCell {
+            let posterView = detailCollectionViewCell.posterImageView
+            return posterView
+        }
+        return UIImageView()
+    }
+}
+
+// MARK: - UICollectionViewDelegate
+extension DetailViewController: UICollectionViewDelegate {
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        updateCloseButton(offset: scrollView.contentOffset.y)
+        
+        let yPositionForDismissal: CGFloat = 70.0
+        let yContentOffset = scrollView.contentOffset.y + UIWindow.topPadding + Constants.collectionViewContentInset
+        if scrollView.isTracking {
+            scrollView.bounces = true
+        } else {
+            scrollView.bounces = yContentOffset > 500
+        }
+
+        if yContentOffset < 0 && scrollView.isTracking {
+            viewsAreHidden = true
+            snapshotView.isHidden = false
+            
+            let scale = (100 + yContentOffset) / 100
+            snapshotView.transform = CGAffineTransform(scaleX: scale, y: scale)
+
+            snapshotView.layer.cornerRadius = -yContentOffset > yPositionForDismissal ? yPositionForDismissal : -yContentOffset
+
+            if yPositionForDismissal + yContentOffset <= 0 {
+                self.close()
+            }
+
+        } else {
+            viewsAreHidden = false
+            snapshotView.isHidden = true
+        }
+        
+    }
+    
+    private func updateCloseButton(offset: CGFloat) {
+        let yContentOffset = offset + UIWindow.topPadding + Constants.collectionViewContentInset
+        if yContentOffset > 120 {
+            closeButton.alpha = 1 - (yContentOffset - 120) / 60
+        } else {
+            closeButton.alpha = 1
         }
     }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        scrollView.bounces = true
+    }
+    
 }
 
 

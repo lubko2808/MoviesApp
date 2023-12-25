@@ -3,6 +3,7 @@ import WebKit
 import Combine
 
 enum Section: Int, Hashable, CaseIterable, CustomStringConvertible {
+    
     case main
     case overview
     case cast
@@ -45,11 +46,31 @@ protocol DetailViewControllerDelegate: AnyObject {
 
 class DetailViewController: UIViewController {
 
+    // MARK: - Properties
     private let viewModel = DetailViewModel(networkManager: NetworkManager())
 
     var dataSource: UICollectionViewDiffableDataSource<Section, Item>! = nil
     var currentSnapshot: NSDiffableDataSourceSnapshot<Section, Item>! = nil
     weak var delegate: DetailViewControllerDelegate?
+    
+    var viewsAreHidden: Bool = false {
+        didSet {
+            closeButton.isHidden = viewsAreHidden
+            
+            for cell in collectionView.visibleCells {
+                cell.isHidden = viewsAreHidden
+            }
+            
+            for header in collectionView.visibleSupplementaryViews(ofKind: Constants.titleElementKind) {
+                header.isHidden = viewsAreHidden
+            }
+        
+            view.backgroundColor = viewsAreHidden ? .clear : .white
+        }
+    }
+
+    var expandedcell: IndexSet = []
+    var subscriptions = Set<AnyCancellable>()
 
     enum Constants {
         static let titleElementKind = "title-element-kind"
@@ -60,6 +81,7 @@ class DetailViewController: UIViewController {
     let movieId: Int
     let moviePoster: UIImage
 
+    // MARK: - init
     init(movieId: Int, moviePoster: UIImage) {
         self.movieId = movieId
         self.moviePoster = moviePoster
@@ -70,7 +92,7 @@ class DetailViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-
+    // MARK: - UI properties
     private let collectionView: UICollectionView = {
         let collectionViewLayout = UICollectionViewLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
@@ -105,28 +127,10 @@ class DetailViewController: UIViewController {
         imageView.isHidden = true
         return imageView
     }()
-
-    var viewsAreHidden: Bool = false {
-        didSet {
-            closeButton.isHidden = viewsAreHidden
-            
-            for cell in collectionView.visibleCells {
-                cell.isHidden = viewsAreHidden
-            }
-            
-            for header in collectionView.visibleSupplementaryViews(ofKind: Constants.titleElementKind) {
-                header.isHidden = viewsAreHidden
-            }
-        
-            view.backgroundColor = viewsAreHidden ? .clear : .white
-        }
-    }
-
-    var expandedcell: IndexSet = []
-    var subscriptions = Set<AnyCancellable>()
     
     private let activityIndicatorView = UIActivityIndicatorView(style: .large)
-
+    
+    // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
         activityIndicatorView.startAnimating()
@@ -238,11 +242,15 @@ class DetailViewController: UIViewController {
         }
     }
     
+    // MARK: - objc
     @objc func close() {
         delegate?.detailViewDidDismiss()
         dismiss(animated: true)
     }
-    
+}
+
+// MARK: - Helpers
+extension DetailViewController {
     func createSnapshotOfView() {
     
         let snapshotImage = self.view.createSnapshot()
@@ -262,6 +270,7 @@ class DetailViewController: UIViewController {
         }
         return UIImageView()
     }
+    
 }
 
 // MARK: - UICollectionViewDelegate
@@ -279,6 +288,9 @@ extension DetailViewController: UICollectionViewDelegate {
         }
 
         if yContentOffset < 0 && scrollView.isTracking {
+            if !viewsAreHidden {
+                snapshotView.image = self.view.createSnapshot()
+            }
             viewsAreHidden = true
             snapshotView.isHidden = false
             
@@ -382,7 +394,6 @@ extension DetailViewController {
             }
         }
     }
-
     
     private func configureDataSource() {
         let mainCellRegistration = createMainCellRegistration()
@@ -433,11 +444,7 @@ extension DetailViewController {
         dataSource.apply(currentSnapshot, animatingDifferences: false)
     }
     
-    
-    
-     
 }
-
 
 // MARK: Collection View Layout
 extension DetailViewController {
@@ -513,28 +520,9 @@ extension DetailViewController {
     }
 }
 
-
+// MARK: - DetailViewControllerDelegate
 extension MainViewController: DetailViewControllerDelegate {
     func detailViewDidDismiss() {
         didTransitionSubject.send()
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

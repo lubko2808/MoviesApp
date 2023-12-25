@@ -97,7 +97,6 @@ extension NetworkManager {
     
     func fetch<Response: Decodable>(_ endpoint: Endpoint) async throws -> Response {
         let urlRequest = URLRequest(url: endpoint.url)
-        print(urlRequest.url?.absoluteString)
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         
         guard let response = response as? HTTPURLResponse, response.statusCode >= 200 && response.statusCode < 300 else {
@@ -105,9 +104,7 @@ extension NetworkManager {
             
             throw URLError(.badServerResponse)
         }
-        //print(Response.self)
         let result = try JSONDecoder().decode(Response.self, from: data)
-        //print("fetch")
         return result
     }
     

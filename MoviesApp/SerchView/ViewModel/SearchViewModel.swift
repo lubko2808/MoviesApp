@@ -104,13 +104,6 @@ class SearchViewModel {
                         }
                         break
                     }
-//                    if page > totalPages && filteredMovies.isEmpty {
-//                        await MainActor.run {
-//                            self.movies = []
-//                        }
-//                        break
-//                    }
-                    
                     
                 }
             } catch let error as NSError {

@@ -82,8 +82,6 @@ class DetailViewModel {
         }
     }
     
-    
-    
     private func fetchReviews(id: Int) async throws {
         let model: MovieReviewsModel = try await networkManager.fetch(.movieReviews(id: id))
         let setOfComments = Set(model.results)

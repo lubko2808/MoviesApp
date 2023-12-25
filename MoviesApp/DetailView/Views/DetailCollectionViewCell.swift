@@ -9,29 +9,7 @@ import UIKit
 
 struct DetailCollectionViewCellConfiguration {
     
-    private let genresDict = [
-        28: "Action",
-        12: "Adventure",
-        16: "Animation",
-        35: "Comedy",
-        80: "Crime",
-        99: "Documentary",
-        18: "Drama",
-        10751: "Family",
-        14: "Fantasy",
-        36: "History",
-        27: "Horror",
-        10402: "Music",
-        9648: "Mystery",
-        10749: "Romance",
-        878: "Science Fiction",
-        10770: "TV Movie",
-        53: "Thriller",
-        10752: "War",
-        37: "Western",
-    ]
-    
-    init(posterImage: UIImage, title: String, tagline: String, averageVote: Double, genres: [Int], duration: Int) {
+    init(posterImage: UIImage, title: String, tagline: String, averageVote: Double, genres: [Genre], duration: Int) {
         self.posterImage = posterImage
         self.title = title
         self.tagline = tagline
@@ -44,7 +22,7 @@ struct DetailCollectionViewCellConfiguration {
     let title: String
     let tagline: String
     private let averageVote: Double
-    private let genres: [Int]
+    private let genres: [Genre]
     private let duration: Int
     
     public func getStars() -> Int {
@@ -83,12 +61,12 @@ struct DetailCollectionViewCellConfiguration {
         guard !genres.isEmpty else { return ""}
         var movieGenres = ""
         for genre in genres {
-            movieGenres.append("\(genresDict[genre] ?? "")/")
+            //movieGenres.append("\(genresDict[genre] ?? "")/")
+            movieGenres.append("\(genre.rawValue)/")
         }
         movieGenres.removeLast()
         return movieGenres
     }
-    
 }
 
 class DetailCollectionViewCell: UICollectionViewCell {

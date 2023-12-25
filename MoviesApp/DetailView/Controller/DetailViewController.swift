@@ -336,10 +336,9 @@ extension DetailViewController {
                 title: movieInfo.title,
                 tagline: movieInfo.tagline,
                 averageVote: movieInfo.voteAverage,
-                genres: movieInfo.genres.map({ $0.id }),
+                genres: movieInfo.genres.map({ Genre(rawValue: $0.name) ?? .all }),
                 duration: movieInfo.runtime)
             cell.configureCell(with: config)
-            self.view.layoutIfNeeded()
         }
     }
 

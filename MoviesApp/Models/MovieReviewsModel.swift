@@ -10,18 +10,28 @@ import Foundation
 struct MovieReviewsModel: Codable, Hashable {
     let page: Int
     let results: [Review]
-    let total_pages: Int
-    let total_results: Int
 }
 
 struct Review: Codable, Hashable {
     let author: String
-    let author_details: AuthorDetails
+    let authorDetails: AuthorDetails
     let content: String
-    let created_at: String
+    let createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case author
+        case authorDetails = "author_details"
+        case content
+        case createdAt = "created_at"
+    }
 }
 
 struct AuthorDetails: Codable, Hashable {
-    let avatar_path: String?
+    let avatarPath: String?
     let rating: Double?
+    
+    enum CodingKeys: String, CodingKey {
+        case avatarPath = "avatar_path"
+        case rating
+    }
 }

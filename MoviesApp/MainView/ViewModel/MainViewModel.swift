@@ -42,7 +42,7 @@ class MainViewModel {
                 let model: MovieModel = try await networkManager.fetch(.movieNowPlaying(page: page))
                 var movies: [MovieItem] = []
                 for movie in model.results {
-                    movies.append(.init(title: movie.title, posterPath: movie.poster_path, id: movie.id, section: .nowPlayingMovies))
+                    movies.append(.init(title: movie.title, posterPath: movie.posterPath, id: movie.id, section: .nowPlayingMovies))
                 }
                 let sendableMovies = movies
                 await MainActor.run {
@@ -65,7 +65,7 @@ class MainViewModel {
                 let model: MovieModel = try await networkManager.fetch(.movieUpcoming(page: page))
                 var movies: [MovieItem] = []
                 for movie in model.results {
-                    movies.append(.init(title: movie.title, posterPath: movie.poster_path, id: movie.id, section: .upcomingMovies))
+                    movies.append(.init(title: movie.title, posterPath: movie.posterPath, id: movie.id, section: .upcomingMovies))
                 }
                 let sendableMovies = movies
                 await MainActor.run {
@@ -89,7 +89,7 @@ class MainViewModel {
                 let model: MovieModel = try await networkManager.fetch(.movieTopRated(page: page))
                 var movies: [MovieItem] = []
                 for movie in model.results {
-                    movies.append(.init(title: movie.title, posterPath: movie.poster_path, id: movie.id, section: .topRatedMovies))
+                    movies.append(.init(title: movie.title, posterPath: movie.posterPath, id: movie.id, section: .topRatedMovies))
                 }
                 let sendableMovies = movies
                 await MainActor.run {
@@ -113,7 +113,7 @@ class MainViewModel {
                 let model: MovieModel = try await networkManager.fetch(.moviePopular(page: page))
                 var movies: [MovieItem] = []
                 for movie in model.results {
-                    movies.append(.init(title: movie.title, posterPath: movie.poster_path, id: movie.id, section: .popularMovies))
+                    movies.append(.init(title: movie.title, posterPath: movie.posterPath, id: movie.id, section: .popularMovies))
                 }
                 let sendableMovies = movies
                 await MainActor.run {

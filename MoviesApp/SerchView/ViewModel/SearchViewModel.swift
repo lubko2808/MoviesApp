@@ -49,9 +49,9 @@ class SearchViewModel {
     public var task: Task<Void, Error>?
     // MARK: - Search
     
-    private var allMovies: [MovieInfoForSearch] = []
-    private var filteredMovies: [MovieInfoForSearch] = []
-    private var tempMovies: [MovieInfoForSearch] = []
+    private var allMovies: [SearchMovieInfo] = []
+    private var filteredMovies: [SearchMovieInfo] = []
+    private var tempMovies: [SearchMovieInfo] = []
     public func searchMovies(shouldStartFromBeginning: Bool) {
         task?.cancel()
         if shouldStartFromBeginning { page = 1 }
@@ -62,12 +62,12 @@ class SearchViewModel {
             filteredMovies = []
             do {
                 while true {
-                    let model: MovieModelForSearch = try await networkManager.fetch(.movieSearch(
+                    let model: SearchMovieModel = try await networkManager.fetch(.movieSearch(
                         query: query, page: page,
                         isAdultIncluded: includeAdult,
                         year: year)
                     )
-                    let totalPages = model.total_pages
+                    let totalPages = model.totalPages
                     allMovies = model.results
                     tempMovies = []
                     filterBasedOnGenre()
@@ -85,7 +85,7 @@ class SearchViewModel {
                     filteredMovies.append(contentsOf: tempMovies)
                     guard filteredMovies.count <= 5 else {
                         let movies = filteredMovies.map { movie in
-                            SearchViewController.Item(movie: MovieInfo(title: movie.title, poster_path: movie.poster_path, id: movie.id))
+                            SearchViewController.Item(movie: MovieInfo(title: movie.title, posterPath: movie.posterPath, id: movie.id))
                         }
                         await MainActor.run {
                             self.isPaginating = false
@@ -97,7 +97,7 @@ class SearchViewModel {
     
                     if page > totalPages {
                         let movies = filteredMovies.map { movie in
-                            SearchViewController.Item(movie: MovieInfo(title: movie.title, poster_path: movie.poster_path, id: movie.id))
+                            SearchViewController.Item(movie: MovieInfo(title: movie.title, posterPath: movie.posterPath, id: movie.id))
                         }
                         await MainActor.run {
                             self.movies = movies 
@@ -156,7 +156,7 @@ class SearchViewModel {
             tempMovies.append(contentsOf: allMovies)
         } else {
             allMovies.forEach { movie in
-                if movie.genre_ids.contains(where: {$0 == genre.id }) {
+                if movie.genreIds.contains(where: {$0 == genre.id }) {
                     tempMovies.append(movie)
                 }
             }
@@ -167,7 +167,7 @@ class SearchViewModel {
         if rating != nil {
             let rating = convertRatingToDouble()
             tempMovies.forEach { movie in
-                if movie.vote_average < rating {
+                if movie.voteAverage < rating {
                     tempMovies.removeAll {$0 == movie}
                 }
             }
@@ -178,7 +178,7 @@ class SearchViewModel {
         if totalVotes != nil {
             let totalVotes = convertTotalVotesToInt()
             tempMovies.forEach { movie in
-                if movie.vote_count < totalVotes {
+                if movie.voteCount < totalVotes {
                     tempMovies.removeAll {$0 == movie}
                 }
             }
@@ -191,7 +191,7 @@ class SearchViewModel {
         if let decade, year == nil {
             let years = decade.years
             tempMovies.forEach { movie in
-                let dateString = movie.release_date
+                let dateString = movie.releaseDate
                 if let date = dateFormatter.date(from: dateString) {
                     let calendar = Calendar.current
                     let year = calendar.component(.year, from: date)
@@ -207,7 +207,7 @@ class SearchViewModel {
         if let primaryLanguage {
             let primaryLanguageString = primaryLanguage.rawValue
             tempMovies.forEach { movie in
-                if movie.original_language != primaryLanguageString {
+                if movie.originalLanguage != primaryLanguageString {
                     tempMovies.removeAll {$0 == movie}
                 }
             }

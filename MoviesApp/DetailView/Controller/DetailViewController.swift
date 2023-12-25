@@ -323,7 +323,7 @@ extension DetailViewController {
                 posterImage: self.moviePoster,
                 title: movieInfo.title,
                 tagline: movieInfo.tagline,
-                averageVote: movieInfo.vote_average,
+                averageVote: movieInfo.voteAverage,
                 genres: movieInfo.genres.map({ $0.id }),
                 duration: movieInfo.runtime)
             cell.configureCell(with: config)
@@ -339,7 +339,7 @@ extension DetailViewController {
 
     private func createCastCellRegistration() -> UICollectionView.CellRegistration<CastCollectionViewCell, Actor> {
         UICollectionView.CellRegistration<CastCollectionViewCell, Actor> { (cell, indexPath, movieActor) in
-            cell.configure(with: movieActor.profile_path, actorName: movieActor.name)
+            cell.configure(with: movieActor.profilePath, actorName: movieActor.name)
         }
     }
 
@@ -354,11 +354,11 @@ extension DetailViewController {
 
             
             let config = CommentCollectionViewCellConfiguration(
-                avatarImageUrl: commentInfo.author_details.avatar_path,
+                avatarImageUrl: commentInfo.authorDetails.avatarPath,
                 name: commentInfo.author,
                 comment: commentInfo.content,
-                date: commentInfo.created_at,
-                ratings: commentInfo.author_details.rating ?? 0)
+                date: commentInfo.createdAt,
+                ratings: commentInfo.authorDetails.rating ?? 0)
             cell.configure(with: config)
 
             if self.expandedcell.contains(indexPath.item) {

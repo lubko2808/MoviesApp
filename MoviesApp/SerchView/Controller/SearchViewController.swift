@@ -233,7 +233,7 @@ extension SearchViewController {
     
     private func createMovieCellRegistration() -> UICollectionView.CellRegistration<MainCollectionViewCell, MovieInfo> {
         UICollectionView.CellRegistration<MainCollectionViewCell, MovieInfo> { (cell, indexPath, movie) in
-            cell.configure(with: movie.poster_path, title: movie.title)
+            cell.configure(with: movie.posterPath, title: movie.title)
             
         }
     }

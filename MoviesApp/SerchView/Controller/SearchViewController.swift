@@ -132,7 +132,7 @@ class SearchViewController: UIViewController {
         
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search Items"
+        searchController.searchBar.placeholder = "Search Movies"
         
         let advancedSearchButton = UIButton(type: .custom)
         advancedSearchButton.setTitle("Advanced Search", for: .normal)

@@ -140,7 +140,7 @@ class AdvancedSearchViewController: UIViewController {
     }()
     
     lazy private var yearTextField: CustomTextField = {
-        let textField = CustomTextField(placeholder: "Year")
+        let textField = CustomTextField(placeholder: "enter year")
         textField.delegate = self
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -240,9 +240,6 @@ class AdvancedSearchViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         
         navigationController?.navigationBar.tintColor =  #colorLiteral(red: 0.9607843161, green: 0.7058823705, blue: 0.200000003, alpha: 1)
-//        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(didTapCancelButton))
-//        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(didTapSaveButton))
-//
     }
     
     private func setupViews() {
@@ -260,8 +257,8 @@ class AdvancedSearchViewController: UIViewController {
         }
         
         scrollView.snp.makeConstraints { make in
-            make.top.left.right.equalToSuperview()
-            make.bottom.equalTo(padView)
+            make.top.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(padView.snp.top)
         }
         
         contentView.snp.makeConstraints { make in
@@ -342,6 +339,7 @@ class AdvancedSearchViewController: UIViewController {
             make.top.equalTo(includeAdultSwitch.snp.bottom).offset(15)
             make.trailing.equalToSuperview()
             make.height.equalTo(130)
+            make.bottom.equalToSuperview().inset(15)
         }
 
         padView.snp.makeConstraints { make in
@@ -357,9 +355,12 @@ class AdvancedSearchViewController: UIViewController {
         searchButton.snp.makeConstraints { make in
             make.trailing.top.bottom.equalToSuperview().inset(20)
         }
-        
-        
-        
+    }
+    
+    private func showError() {
+        let alert = UIAlertController(title: "Error", message: "Incorrect year", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
     }
     
     // MARK: - Keyboard
@@ -383,19 +384,20 @@ class AdvancedSearchViewController: UIViewController {
         let userInfo = notification.userInfo
         if !isKeyboardShown {
             if let kbFrameSize = (userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-                let distanceFromYearTextFieldToContentView = contentView.frame.maxY - yearTextField.frame.maxY
-                isKeyboardShown = true
-                scrollView.contentOffset = CGPoint(x: 0, y: kbFrameSize.height - distanceFromYearTextFieldToContentView + 20)
+
+                let contentInsets = UIEdgeInsets(top: 0, left: 0, bottom: kbFrameSize.height, right: 0)
+                scrollView.contentInset = contentInsets
+                scrollView.scrollIndicatorInsets = contentInsets
             }
         }
     }
 
     @objc private func keyboardWillHide() {
         isKeyboardShown = false
-        scrollView.contentOffset = CGPoint(x: 0, y: -UIWindow.topPadding)
+        scrollView.contentInset = .zero
+        scrollView.scrollIndicatorInsets = .zero
     }
 }
-
 
 // MARK: - @objc
 extension AdvancedSearchViewController {
@@ -416,6 +418,18 @@ extension AdvancedSearchViewController {
     }
     
     @objc private func searchButtonTapped() {
+        if let year = yearTextField.text, !year.isEmpty {
+            if Int(year) == nil {
+                showError()
+                return
+            } else if let year = Int(year) {
+                if year < 1900 || year > 2025 {
+                    showError()
+                    return
+                }
+            }
+        }
+        
         let rating = ratingsCases[ratingPickerView.selectedRow(inComponent: 0)]
         let totalVotes = totalVotesCases[totalVotesSegmentedControl.selectedSegmentIndex]
         let decade = Decade.allCases[decadePickerView.selectedRow(inComponent: 0)]
@@ -492,15 +506,6 @@ extension AdvancedSearchViewController: UIPickerViewDelegate {
         }
         
         return nil
-    }
-}
-
-extension AdvancedSearchViewController: UIScrollViewDelegate {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        //print("scrollView.contentOffset.y: \(scrollView.contentOffset.y + scrollView.frame.minY)")
-//        print("UIWindow.topPadding: \(UIWindow.topPadding)")
-//        let distance = contentView.frame.maxY - yearTextField.frame.maxY
-//        print("distance: \(distance)")
     }
 }
 

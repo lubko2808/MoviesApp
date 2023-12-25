@@ -9,4 +9,10 @@ import UIKit
 
 enum GlobalConstants {
     static let defaultImage = UIImage(systemName: "face.smiling.inverse")!
+    static let posterAspectRatio: CGFloat = 3 / 2
+
 }
+
+
+
+

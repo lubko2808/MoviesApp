@@ -58,7 +58,6 @@ class MainViewController: UIViewController {
     
     private enum Constants {
         static let titleElementKind = "title-element-kind"
-        static let posterAspectRatio: CGFloat = 3 / 2
         static let amountOfMoviesInPage = 20
         static let limitOfMoviesInSection = 200
         static let interGroupSpacing: CGFloat = 15
@@ -193,7 +192,7 @@ extension MainViewController {
             let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
  
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.425), heightDimension: .fractionalWidth(0.425  * Constants.posterAspectRatio ) )
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.425), heightDimension: .fractionalWidth(0.425  * GlobalConstants.posterAspectRatio ) )
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
             
             let section = NSCollectionLayoutSection(group: group)
@@ -380,7 +379,6 @@ extension MainViewController: UICollectionViewDelegate {
                 movieId: itemInfo.id,
                 delegate: self
             )
-            
             
             let UInavVC = UINavigationController(rootViewController: listsViewController)
             if let sheet = UInavVC.presentationController as? UISheetPresentationController {

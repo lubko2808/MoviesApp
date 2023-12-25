@@ -59,7 +59,6 @@ class AdvancedSearchViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.backgroundColor = .systemBackground
-        scrollView.delegate = self
         return scrollView
     }()
     

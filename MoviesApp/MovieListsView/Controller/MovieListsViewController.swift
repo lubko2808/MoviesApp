@@ -7,8 +7,7 @@
 
 import UIKit
 import SnapKit
-import RxSwift
-import RxCocoa
+import Combine
 
 class MovieListsViewController: UIViewController {
     
@@ -35,7 +34,7 @@ class MovieListsViewController: UIViewController {
     private var isMoviesInCurrentListPresent = Bool()
     private var moviesToDelete: Set<IndexPath> = []
     private var areCellsInSelectionState: Bool = false
-    private let disposeBag = DisposeBag()
+    private var subscriptions = Set<AnyCancellable>()
     
     var dataSource: UICollectionViewDiffableDataSource<Section, Item>! = nil
     var currentSnapshot: NSDiffableDataSourceSnapshot<Section, Item>! = nil
@@ -98,18 +97,18 @@ class MovieListsViewController: UIViewController {
         
         view.addSubview(deleteButton)
         deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+    }
+
+    private func setConstraints() {
+        collectionView.snp.makeConstraints { make in
+            make.top.trailing.leading.bottom.equalToSuperview()
+        }
+        
         deleteButton.snp.makeConstraints { make in
             make.width.equalTo(100)
             make.height.equalTo(Constants.deleteButtonHeight)
             make.centerX.equalToSuperview()
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-        }
-    }
-
-    private func setConstraints() {
-
-        collectionView.snp.makeConstraints { make in
-            make.top.trailing.leading.bottom.equalToSuperview()
+            make.top.equalTo(view.snp.bottom)
         }
         
     }
@@ -157,7 +156,8 @@ extension MovieListsViewController {
         deleteButton.isHidden = false
         UIView.animate(withDuration: 0.15) {
             self.deleteButton.snp.updateConstraints { make in
-                make.top.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-Constants.deleteButtonHeight - 90)
+                let offset = -GlobalConstants.tabBarHeight - GlobalConstants.tabBarInset - Constants.deleteButtonHeight - 18
+                make.top.equalTo(self.view.snp.bottom).offset(offset)
             }
             
             self.view.layoutIfNeeded()
@@ -167,7 +167,7 @@ extension MovieListsViewController {
     private func hideDeleteButton() {
         UIView.animate(withDuration: 0.15) {
             self.deleteButton.snp.updateConstraints { make in
-                make.top.equalTo(self.view.safeAreaLayoutGuide.snp.bottom)
+                make.top.equalTo(self.view.snp.bottom)
             }
             self.view.layoutIfNeeded()
         } completion: { _ in
@@ -288,8 +288,10 @@ extension MovieListsViewController {
         UICollectionView.CellRegistration<MovieListsContainerCell, [MovieList]> { (cell, indexPath, lists) in
             cell.lists = lists.map({ $0.name })
             
-            cell.listSelected
-                .bind { listName in
+            self.subscriptions.removeAll()
+            
+            cell.listSelectedSubject
+                .sink { listName in
                     self.areCellsInSelectionState = false
                     self.hideDeleteButton()
                     let visibleCells = self.getVisibleMovieCells()
@@ -313,10 +315,13 @@ extension MovieListsViewController {
                     }
                     self.dataSource.apply(self.currentSnapshot)
                 }
-                .disposed(by: self.disposeBag)
-
-            cell.listTappedToDelete
-                .bind { index in
+                .store(in: &self.subscriptions)
+             
+            
+            cell.listTappedToDeleteSubject
+                .sink { index in
+                    print("index: \(index)")
+                    print("subscriptions.count: \(self.subscriptions.count)")
                     let item = self.currentSnapshot.itemIdentifiers(inSection: .lists)[0]
                     self.currentSnapshot.deleteItems([item])
                     var listToDelete = String()
@@ -341,8 +346,7 @@ extension MovieListsViewController {
                     
                     self.dataSource.apply(self.currentSnapshot)
                 }
-                .disposed(by: self.disposeBag)
-        
+                .store(in: &self.subscriptions)
              
         }
     }
@@ -411,7 +415,6 @@ extension MovieListsViewController {
     
 }
 
-
 // MARK: - Collection View Layout
 extension MovieListsViewController {
     
@@ -475,7 +478,6 @@ extension MovieListsViewController {
     
 }
 
-
 // MARK: - MovieListsSectionTitleProtocol
 extension MovieListsViewController: MovieListsSectionTitleProtocol {
     func didTapAddListButton(_ listName: String) -> String? {
@@ -530,6 +532,3 @@ extension MovieListsViewController {
     }
     
 }
-
-
-

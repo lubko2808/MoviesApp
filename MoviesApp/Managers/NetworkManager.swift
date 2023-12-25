@@ -100,8 +100,7 @@ extension NetworkManager {
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         
         guard let response = response as? HTTPURLResponse, response.statusCode >= 200 && response.statusCode < 300 else {
-            let response = response as? HTTPURLResponse
-            
+            //let response = response as? HTTPURLResponse
             throw URLError(.badServerResponse)
         }
         let result = try JSONDecoder().decode(Response.self, from: data)
@@ -125,3 +124,4 @@ extension NetworkManager {
     }
 
 }
+

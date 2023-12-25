@@ -7,7 +7,6 @@
 
 import UIKit
 import Combine
-import RxSwift
 
 class MovieListsContainerCell: UICollectionViewCell {
     
@@ -41,17 +40,14 @@ class MovieListsContainerCell: UICollectionViewCell {
         }
     }
     
-    private let disposeBag = DisposeBag()
-    
-    var listSelected: Observable<String> { listSelectedSubject.asObservable() }
-    private let listSelectedSubject = PublishSubject<String>()
-
-    var listTappedToDelete: Observable<Int> { listTappedToDeleteSubject.asObservable() }
-    private let listTappedToDeleteSubject = PublishSubject<Int>()
+    public let listSelectedSubject = PassthroughSubject<String, Never>()
+    public let listTappedToDeleteSubject = PassthroughSubject<Int, Never>()
     
     private let tagCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.clipsToBounds = false
+        collectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: "TagCollectionViewCell")
         return collectionView
     }()
 
@@ -81,7 +77,7 @@ class MovieListsContainerCell: UICollectionViewCell {
             }
         }
 
-        listTappedToDeleteSubject.onNext(indexPath.item)
+        listTappedToDeleteSubject.send(indexPath.item)
         lists.remove(at: indexPath.item)
         tagCollectionView.reloadData()
     }
@@ -93,7 +89,6 @@ class MovieListsContainerCell: UICollectionViewCell {
         layout.estimatedItemSize = CGSize(width: 140, height: 40)
         layout.minimumLineSpacing = 10
         tagCollectionView.collectionViewLayout = layout
-        tagCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: "TagCollectionViewCell")
         tagCollectionView.dataSource = self
         tagCollectionView.delegate = self
         
@@ -164,7 +159,7 @@ extension MovieListsContainerCell: UICollectionViewDelegate {
         currentSelectedCell.contentView.backgroundColor = .blue
         MovieListsContainerCell.selectedTag = indexPath
 
-        listSelectedSubject.onNext(lists[indexPath.item])
+        listSelectedSubject.send(lists[indexPath.item])
         return true
     }
 

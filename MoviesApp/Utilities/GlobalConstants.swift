@@ -10,7 +10,10 @@ import UIKit
 enum GlobalConstants {
     static let defaultImage = UIImage(systemName: "face.smiling.inverse")!
     static let posterAspectRatio: CGFloat = 3 / 2
-
+    
+    // tab bar 
+    static let tabBarHeight: CGFloat = 90
+    static let tabBarInset: CGFloat = 24
 }
 
 

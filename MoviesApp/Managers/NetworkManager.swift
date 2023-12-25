@@ -38,6 +38,7 @@ class NetworkManager {
         case movieCast(id: Int)
         case movieTrailers(id: Int)
         case movieReviews(id: Int)
+        case movieSearch(query: String, page: Int, isAdultIncluded: Bool?, year: String?)
         
         case image(imageUrl: String)
         
@@ -75,6 +76,14 @@ class NetworkManager {
                 components.path = "/3/movie/\(id)/videos"
             case .movieReviews(let id):
                 components.path = "/3/movie/\(id)/reviews"
+            case .movieSearch(let query, let page, let isAdultIncluded, let year):
+                components.path = "/3/search/movie"
+                components.queryItems?.append(URLQueryItem(name: "query", value: query))
+                components.queryItems?.append(URLQueryItem(name: "page", value: String(page)))
+                if let isAdultIncluded {
+                    components.queryItems?.append(URLQueryItem(name: "include_adult", value: String(isAdultIncluded)))
+                }
+                components.queryItems?.append(URLQueryItem(name: "primary_release_year", value: year))
             }
             
             components.queryItems?.append(URLQueryItem(name: "api_key", value: "7f798f1c6fb6a8225bffe3565f4a5ec2"))
@@ -88,17 +97,17 @@ extension NetworkManager {
     
     func fetch<Response: Decodable>(_ endpoint: Endpoint) async throws -> Response {
         let urlRequest = URLRequest(url: endpoint.url)
-        
+        print(urlRequest.url?.absoluteString)
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
-                
+        
         guard let response = response as? HTTPURLResponse, response.statusCode >= 200 && response.statusCode < 300 else {
             let response = response as? HTTPURLResponse
             
             throw URLError(.badServerResponse)
         }
-
+        //print(Response.self)
         let result = try JSONDecoder().decode(Response.self, from: data)
-        print("here")
+        //print("fetch")
         return result
     }
     

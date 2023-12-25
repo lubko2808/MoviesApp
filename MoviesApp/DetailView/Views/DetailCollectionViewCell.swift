@@ -80,6 +80,7 @@ struct DetailCollectionViewCellConfiguration {
     }
     
     public func getGenres() -> String {
+        guard !genres.isEmpty else { return ""}
         var movieGenres = ""
         for genre in genres {
             movieGenres.append("\(genresDict[genre] ?? "")/")
@@ -236,15 +237,12 @@ class DetailCollectionViewCell: UICollectionViewCell {
         static let starImageColor = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1)
         static let posterImageViewSize: CGFloat = 180
         static let posterImageAspectRatio: CGFloat = 3 / 2
-        
     }
     
     public func configureCell(with config: DetailCollectionViewCellConfiguration) {
         posterImageView.image = config.posterImage
         titleLabel.text = config.title
         taglineLabel.text = config.tagline
-        
-       
         
         for star in 0..<config.getStars() {
             starImageViews[star].image =  UIImage(systemName: "star.fill")?.withTintColor(Constants.starImageColor, renderingMode: .alwaysOriginal)

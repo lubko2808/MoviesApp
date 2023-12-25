@@ -64,7 +64,6 @@ class MovieListsContainerCell: UICollectionViewCell {
         super.init(frame: frame)
         setupViews()
         setConstraints()
-        
     }
     
     required init?(coder: NSCoder) {

@@ -35,6 +35,10 @@ class MovieCollectionViewCell: UICollectionViewCell {
     }
      
     public func configure(with image: UIImage?) {
+        guard let image = image else {
+            posterImageView.image = GlobalConstants.defaultImage
+            return 
+        }
         posterImageView.image = image
     }
 

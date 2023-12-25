@@ -8,7 +8,7 @@
 import Foundation
 
 struct ExtendedMovieModel: Codable, Hashable {
-    let genres: [Genre]
+    let genres: [GenreModel]
     let homepage: String
     let id: Int
     let overview: String
@@ -19,7 +19,7 @@ struct ExtendedMovieModel: Codable, Hashable {
     let vote_average: Double
 }
 
-struct Genre: Codable, Hashable {
+struct GenreModel: Codable, Hashable {
     let id: Int
     let name: String
 }

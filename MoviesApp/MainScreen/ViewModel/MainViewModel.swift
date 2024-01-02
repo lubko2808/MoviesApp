@@ -12,10 +12,11 @@ protocol MainViewModelProtocol: AnyObject {
     
     var errorPublisher: Published<String>.Publisher { get }
     
-    var nowPlayingMoviesPublisher: Published<[MovieItem]?>.Publisher { get }
-    var upcomingMoviesPublisher: Published<[MovieItem]?>.Publisher { get }
-    var topRatedMoviesPublisher: Published<[MovieItem]?>.Publisher { get }
-    var popularMoviesPublisher:Published<[MovieItem]?>.Publisher { get }
+    typealias Item = MainScreenCollectionView.Item
+    var nowPlayingMoviesPublisher: Published<[Item]?>.Publisher { get }
+    var upcomingMoviesPublisher: Published<[Item]?>.Publisher { get }
+    var topRatedMoviesPublisher: Published<[Item]?>.Publisher { get }
+    var popularMoviesPublisher:Published<[Item]?>.Publisher { get }
     
     func fetchAllMovies()
     
@@ -37,17 +38,17 @@ final class MainViewModel: MainViewModelProtocol {
     @Published private var error: String = ""
     var errorPublisher: Published<String>.Publisher { $error }
     
-    @Published private var nowPlayingMovies: [MovieItem]?
-    var nowPlayingMoviesPublisher: Published<[MovieItem]?>.Publisher { $nowPlayingMovies }
+    @Published private var nowPlayingMovies: [Item]?
+    var nowPlayingMoviesPublisher: Published<[Item]?>.Publisher { $nowPlayingMovies }
     
-    @Published private var upcomingMovies: [MovieItem]?
-    var upcomingMoviesPublisher: Published<[MovieItem]?>.Publisher { $upcomingMovies }
+    @Published private var upcomingMovies: [Item]?
+    var upcomingMoviesPublisher: Published<[Item]?>.Publisher { $upcomingMovies }
     
-    @Published private var topRatedMovies: [MovieItem]?
-    var topRatedMoviesPublisher: Published<[MovieItem]?>.Publisher { $topRatedMovies }
+    @Published private var topRatedMovies: [Item]?
+    var topRatedMoviesPublisher: Published<[Item]?>.Publisher { $topRatedMovies }
     
-    @Published private var popularMovies: [MovieItem]?
-    var popularMoviesPublisher:Published<[MovieItem]?>.Publisher { $popularMovies }
+    @Published private var popularMovies: [Item]?
+    var popularMoviesPublisher:Published<[Item]?>.Publisher { $popularMovies }
     
     init(networkManager: NetworkManagerProtocol) {
         self.networkManager = networkManager
@@ -71,7 +72,7 @@ final class MainViewModel: MainViewModelProtocol {
             
             do {
                 let model: MovieModel = try await networkManager.fetch(Endpoint.movieNowPlaying(page: page))
-                var movies: [MovieItem] = []
+                var movies: [Item] = []
                 for movie in model.results {
                     movies.append(.init(title: movie.title, posterPath: movie.posterPath, id: movie.id, section: .nowPlayingMovies))
                 }
@@ -94,7 +95,7 @@ final class MainViewModel: MainViewModelProtocol {
             
             do {
                 let model: MovieModel = try await networkManager.fetch(Endpoint.movieUpcoming(page: page))
-                var movies: [MovieItem] = []
+                var movies: [Item] = []
                 for movie in model.results {
                     movies.append(.init(title: movie.title, posterPath: movie.posterPath, id: movie.id, section: .upcomingMovies))
                 }
@@ -118,7 +119,7 @@ final class MainViewModel: MainViewModelProtocol {
             
             do {
                 let model: MovieModel = try await networkManager.fetch(Endpoint.movieTopRated(page: page))
-                var movies: [MovieItem] = []
+                var movies: [Item] = []
                 for movie in model.results {
                     movies.append(.init(title: movie.title, posterPath: movie.posterPath, id: movie.id, section: .topRatedMovies))
                 }
@@ -142,7 +143,7 @@ final class MainViewModel: MainViewModelProtocol {
             
             do {
                 let model: MovieModel = try await networkManager.fetch(Endpoint.moviePopular(page: page))
-                var movies: [MovieItem] = []
+                var movies: [Item] = []
                 for movie in model.results {
                     movies.append(.init(title: movie.title, posterPath: movie.posterPath, id: movie.id, section: .popularMovies))
                 }

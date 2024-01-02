@@ -326,7 +326,7 @@ extension MovieListsViewController {
                     let visibleCells = self.getVisibleMovieCells()
                     for cell in visibleCells {
                         cell.selectedToDeleteImageView.isHidden = true
-                        cell.transform = .identity
+                        cell.transform = .identity 
                     }
                     
                     self.currentlySelectedList = listName

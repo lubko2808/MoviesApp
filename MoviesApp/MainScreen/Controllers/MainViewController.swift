@@ -8,31 +8,6 @@
 import UIKit
 import Combine
 
-struct MovieItem: Hashable {
-    let title: String
-    let posterPath: String?
-    let id: Int
-    
-    let section: Categories
-}
-
-enum Categories: String {
-    case nowPlayingMovies = "Now Playing"
-    case upcomingMovies = "Upcoming"
-    case topRatedMovies = "Top Rated"
-    case popularMovies = "Popular"
-    
-    static func intToCategories(section: Int) -> Categories? {
-        switch section {
-        case 0: return .nowPlayingMovies
-        case 1: return .upcomingMovies
-        case 2: return .topRatedMovies
-        case 3: return .popularMovies
-        default: return nil
-        }
-    }
-    
-}
 
 enum ActionType {
     case add
@@ -49,18 +24,18 @@ class MainViewController: UIViewController {
     
     private let popUpWindow = PopUpWindow(frame: .zero)
     
-    private let collectionView: UICollectionView = {
-        let collectionViewLayout = UICollectionViewLayout()
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
-        collectionView.backgroundColor = .none
-        collectionView.showsVerticalScrollIndicator = false
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        return collectionView
-    }()
+    typealias Section = MainScreenCollectionView.Section
+    typealias Item = MainScreenCollectionView.Item
+    private var movies: [Section : [Item] ] = [
+        .nowPlayingMovies : [],
+        .upcomingMovies : [],
+        .topRatedMovies : [],
+        .popularMovies : []
+    ]
+
+    private let collectionView = MainScreenCollectionView()
     
     private enum Constants {
-        static let titleElementKind = "title-element-kind"
         static let amountOfMoviesInPage = 20
         static let limitOfMoviesInSection = 200
         static let interGroupSpacing: CGFloat = 15
@@ -68,10 +43,6 @@ class MainViewController: UIViewController {
     }
     
     private var subscriptions = Set<AnyCancellable>()
-    
-    var dataSource: UICollectionViewDiffableDataSource<Categories, MovieItem>! = nil
-    var currentSnapshot: NSDiffableDataSourceSnapshot<Categories, MovieItem>! = nil
-    
     public let didTransitionSubject = PassthroughSubject<Void, Never>()
     
     private var contentOffsetsX: [CGFloat] = [0, 0, 0, 0]
@@ -89,9 +60,6 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()        
         setupViews()
-        setConstraints()
-        configureDataSource()
-        
         setupBinders()
         getMovies()
     }
@@ -112,151 +80,45 @@ class MainViewController: UIViewController {
         
         viewModel.popularMoviesPublisher
             .sink { [weak self] movies in
-                self?.appendMovies(movies ?? [], toSection: .popularMovies)
+                self?.movies[.popularMovies]?.append(contentsOf: movies ?? [])
+                self?.collectionView.appendMovies(movies ?? [], toSection: .popularMovies)
             }
             .store(in: &subscriptions)
         
         viewModel.upcomingMoviesPublisher
             .sink { [weak self] movies in
-                self?.appendMovies(movies ?? [], toSection: .upcomingMovies)
+                self?.movies[.upcomingMovies]?.append(contentsOf: movies ?? [])
+                self?.collectionView.appendMovies(movies ?? [], toSection: .upcomingMovies)
             }
             .store(in: &subscriptions)
 
         viewModel.topRatedMoviesPublisher
             .sink { [weak self] movies in
-                self?.appendMovies(movies ?? [], toSection: .topRatedMovies)
+                self?.movies[.topRatedMovies]?.append(contentsOf: movies ?? [])
+                self?.collectionView.appendMovies(movies ?? [], toSection: .topRatedMovies)
             }
             .store(in: &subscriptions)
 
         viewModel.nowPlayingMoviesPublisher
             .sink { [weak self] movies in
-                self?.appendMovies(movies ?? [], toSection: .nowPlayingMovies)
+                self?.movies[.nowPlayingMovies]?.append(contentsOf: movies ?? [])
+                self?.collectionView.appendMovies(movies ?? [], toSection: .nowPlayingMovies)
             }
             .store(in: &subscriptions)
     }
-    
-     func appendMovies(_ movies: [MovieItem], toSection sectionIdentifier: Categories) {
-         currentSnapshot.appendItems(movies, toSection: sectionIdentifier)
-         dataSource.apply(self.currentSnapshot, animatingDifferences: true)
-     }
-    
+
     private func setupViews() {
         view.backgroundColor = .systemBackground
 
-        collectionView.collectionViewLayout = createLayout()
         collectionView.delegate = self
+        collectionView.horizontalSectionDidScroll = horizontalSectionDidScroll
         view.addSubview(collectionView)
-        
-        title = "Main"
-        navigationController?.navigationBar.prefersLargeTitles = true
-    }
-    
-    private func setConstraints() {
         collectionView.snp.makeConstraints { make in
             make.leading.trailing.top.bottom.equalToSuperview()
         }
-    }
-    
-    private func configureDataSource() {
         
-        let cellRegistration = UICollectionView.CellRegistration<MainCollectionViewCell, MovieItem> { cell, indexPath, movie in
-            cell.configure(with: movie.posterPath, title: movie.title)
-        }
-        dataSource = UICollectionViewDiffableDataSource(collectionView: collectionView) {
-            (collectionView: UICollectionView, indexPath: IndexPath, movie: MovieItem) -> UICollectionViewCell? in
-            return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: movie)
-        }
-        
-        let supplementaryRegistration = UICollectionView.SupplementaryRegistration<TitleSupplementaryView>(elementKind: Constants.titleElementKind) { supplementaryView, elementKind, indexPath in
-            
-            if let snapShot = self.currentSnapshot {
-                let movieCategory = snapShot.sectionIdentifiers[indexPath.section]
-                supplementaryView.label.text = movieCategory.rawValue
-            }
-        }
-        
-        dataSource.supplementaryViewProvider = { view, kind, index in
-            return self.collectionView.dequeueConfiguredReusableSupplementary(using: supplementaryRegistration, for: index)
-        }
-        
-        currentSnapshot = NSDiffableDataSourceSnapshot<Categories, MovieItem>()
-        currentSnapshot.appendSections([.nowPlayingMovies, .upcomingMovies, .topRatedMovies, .popularMovies])
-        dataSource.apply(currentSnapshot, animatingDifferences: true)
-
-    }
-    
-}
-
-// MARK: - Create Layout
-extension MainViewController {
-    
-    private func createLayout() -> UICollectionViewCompositionalLayout {
-       
-        let sectionProvider = { (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
-            
-            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
-            let item = NSCollectionLayoutItem(layoutSize: itemSize)
- 
-            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.425), heightDimension: .fractionalWidth(0.425  * GlobalConstants.posterAspectRatio ) )
-            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-            
-            let section = NSCollectionLayoutSection(group: group)
-            section.orthogonalScrollingBehavior = .continuous
-            section.interGroupSpacing = Constants.interGroupSpacing
-            section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: Constants.sectionContentInset, bottom: 0, trailing: Constants.sectionContentInset)
-            
-            section.visibleItemsInvalidationHandler = { [weak self] visibleItems, point, environment in
-                self?.horizontalSectionDidScroll(visibleItems: visibleItems, point: point, environment: environment, sectionIndex: sectionIndex)
-            }
-            
-            let titleSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44))
-            let titleSupplementary = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: titleSize, elementKind: Constants.titleElementKind, alignment: .top)
-            section.boundarySupplementaryItems = [titleSupplementary]
-            return section
-        }
-        
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 20
-        let layout = UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
-        return layout
-        
-    }
-    
-    private func horizontalSectionDidScroll(visibleItems: [NSCollectionLayoutVisibleItem], point: CGPoint, environment: NSCollectionLayoutEnvironment, sectionIndex: Int) {
-        let contentOffset = point.x
-        setOffset(for: sectionIndex, offset: contentOffset)
-        guard let itemWidth = visibleItems.last?.frame.width else { return }
-        var section: Categories
-        switch sectionIndex {
-        case 0: section = .nowPlayingMovies
-        case 1: section = .upcomingMovies
-        case 2: section = .topRatedMovies
-        case 3: section = .popularMovies
-        default: return
-        }
-        let amountOfItemsInSection = self.currentSnapshot.itemIdentifiers(inSection: section).count
-        if amountOfItemsInSection > Constants.limitOfMoviesInSection { return }
-        if amountOfItemsInSection == 0 { return }
-        let contentSize = CGFloat(amountOfItemsInSection) * itemWidth + (2 * Constants.sectionContentInset) + ((CGFloat(amountOfItemsInSection) - 1) * Constants.interGroupSpacing)
-
-        if contentOffset > (contentSize + 20 - environment.container.contentSize.width) {
-            switch sectionIndex {
-            case 0:
-                guard !self.viewModel.isNowPlayingPaginating else { return }
-                self.viewModel.fetchNowPlayingMovies(page: (amountOfItemsInSection / Constants.amountOfMoviesInPage) + 1 )
-            case 1:
-                guard !self.viewModel.isUpcomingPaginating else { return }
-                self.viewModel.fetchUpcomingMovies(page: (amountOfItemsInSection / Constants.amountOfMoviesInPage) + 1 )
-            case 2:
-                guard !self.viewModel.isTopRatedPaginating else { return }
-                self.viewModel.fetchTopRatedMovies(page: (amountOfItemsInSection / Constants.amountOfMoviesInPage) + 1 )
-            case 3:
-                guard !self.viewModel.isPopularPaginating else { return }
-                self.viewModel.fetchPopularMovies(page: (amountOfItemsInSection / Constants.amountOfMoviesInPage) + 1 )
-            default:
-                break
-            }
-        }
+        title = "Main"
+        navigationController?.navigationBar.prefersLargeTitles = true
     }
 }
 
@@ -296,26 +158,24 @@ extension MainViewController {
         default: return CGFloat()
         }
     }
-    
-    private func setOffset(for section: Int, offset: CGFloat) {
-        switch(section) {
-        case 0: contentOffsetsX[section] = offset
-        case 1: contentOffsetsX[section] = offset
-        case 2: contentOffsetsX[section] = offset
-        case 3: contentOffsetsX[section] = offset
-        default: break
+
+    private func setOffset(for section: Section, offset: CGFloat) {
+        switch section {
+        case .nowPlayingMovies: contentOffsetsX[0] = offset
+        case .upcomingMovies: contentOffsetsX[1] = offset
+        case .topRatedMovies: contentOffsetsX[2] = offset
+        case .popularMovies: contentOffsetsX[3] = offset
         }
     }
 }
 
 // MARK: - UICollectionViewDelegate
-
 extension MainViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! MainCollectionViewCell
-        let section = currentSnapshot.sectionIdentifiers[indexPath.section]
-        let item = currentSnapshot.itemIdentifiers(inSection: section)[indexPath.item]
+        guard let section = Section.intToSection(section: indexPath.section) else { return }
+        guard let item = movies[section]?[indexPath.item] else { return }
         let id = item.id
         onMovieCellTapped?(id, cell.posterImageView.image ?? GlobalConstants.defaultImage)
     }
@@ -326,8 +186,8 @@ extension MainViewController: UICollectionViewDelegate {
         let indexPath = indexPaths[0]
         
         guard let cell = collectionView.cellForItem(at: indexPath) as? MainCollectionViewCell else { return nil }
-        guard let section = Categories.intToCategories(section: indexPath.section) else { return nil }
-        let itemInfo = self.currentSnapshot.itemIdentifiers(inSection: section)[indexPath.item]
+        guard let section = Section.intToSection(section: indexPath.section) else { return nil }
+        guard let itemInfo = movies[section]?[indexPath.item] else { return nil }
         let listsInWhichMovieIsStored = self.coreDataManager.fetchListsInWhichMovieIsStored(movieId: itemInfo.id)
 
         let config = UIContextMenuConfiguration(listsInWhichMovieIsStored: listsInWhichMovieIsStored,
@@ -339,6 +199,34 @@ extension MainViewController: UICollectionViewDelegate {
         return config
         
     }
-   
+    
+    func horizontalSectionDidScroll(contentOffset: CGFloat, itemWidth: CGFloat, section: Section, environment: NSCollectionLayoutEnvironment) {
+        setOffset(for: section, offset: contentOffset)
+        guard let amountOfItemsInSection = movies[section]?.count else { return }
+        if amountOfItemsInSection > Constants.limitOfMoviesInSection { return }
+        if amountOfItemsInSection == 0 { return }
+        let contentSize = CGFloat(amountOfItemsInSection) * itemWidth + (2 * Constants.sectionContentInset) + ((CGFloat(amountOfItemsInSection) - 1) * Constants.interGroupSpacing)
+        
+        if contentOffset > (contentSize + 20 - environment.container.contentSize.width) {
+            let newPage = (amountOfItemsInSection / Constants.amountOfMoviesInPage) + 1
+            switch section {
+            case .nowPlayingMovies:
+                guard !self.viewModel.isNowPlayingPaginating else { return }
+                self.viewModel.fetchNowPlayingMovies(page: newPage)
+            case .upcomingMovies:
+                guard !self.viewModel.isUpcomingPaginating else { return }
+                self.viewModel.fetchUpcomingMovies(page: newPage)
+            case .topRatedMovies:
+                guard !self.viewModel.isTopRatedPaginating else { return }
+                self.viewModel.fetchTopRatedMovies(page: newPage)
+            case .popularMovies:
+                guard !self.viewModel.isPopularPaginating else { return }
+                self.viewModel.fetchPopularMovies(page: newPage)
+            }
+        }
+    }
+    
 }
+
+
 

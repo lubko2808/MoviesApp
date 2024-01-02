@@ -89,7 +89,6 @@ class ListsViewController: UIViewController {
         if !listsToRemoveFromOrAddMovie.isEmpty {
             switch type {
             case .add:
-//                coreDataManager.createAndAddMovieToLists(listsToRemoveFromOrAddMovie, title: movieTitle, poster: movieImage, id: movieId)
                 coreDataManager.addMovieToLists(listsToRemoveFromOrAddMovie, title: movieTitle, poster: movieImage, id: movieId)
                 completionHandler?("added successfully")
             case .remove:
@@ -140,5 +139,7 @@ extension ListsViewController: UITableViewDelegate {
             
         }
     }
+    
+    
     
 }

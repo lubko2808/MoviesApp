@@ -2,7 +2,7 @@ import UIKit
 import WebKit
 import Combine
 
-enum Section: Int, Hashable, CaseIterable, CustomStringConvertible {
+enum DetailSection: Int, Hashable, CaseIterable, CustomStringConvertible {
     
     case main
     case overview
@@ -21,7 +21,7 @@ enum Section: Int, Hashable, CaseIterable, CustomStringConvertible {
     }
 }
 
-struct Item: Hashable {
+struct DetailItem: Hashable {
 
     let movieInfo: ExtendedMovieModel?
     let overview: String?
@@ -46,8 +46,8 @@ class DetailViewController: UIViewController {
     
     private let viewModel: DetailViewModelProtocol
 
-    var dataSource: UICollectionViewDiffableDataSource<Section, Item>! = nil
-    var currentSnapshot: NSDiffableDataSourceSnapshot<Section, Item>! = nil
+    var dataSource: UICollectionViewDiffableDataSource<DetailSection, DetailItem>! = nil
+    var currentSnapshot: NSDiffableDataSourceSnapshot<DetailSection, DetailItem>! = nil
    
     
     var viewsAreHidden: Bool = false {
@@ -155,8 +155,8 @@ class DetailViewController: UIViewController {
             .dropFirst()
             .sink { [weak self] movieInfo in
                 guard let self = self else { return }
-                let item = Item(movieInfo: movieInfo)
-                var snapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+                let item = DetailItem(movieInfo: movieInfo)
+                var snapShot = NSDiffableDataSourceSectionSnapshot<DetailItem>()
                 snapShot.append([item])
                 self.currentSnapshot.appendItems([item], toSection: .main)
                 self.activityIndicatorView.stopAnimating()
@@ -169,8 +169,8 @@ class DetailViewController: UIViewController {
             .dropFirst()
             .sink { [weak self] overview in
                 guard let self = self else { return }
-                let item = Item(overview: overview)
-                var snapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+                let item = DetailItem(overview: overview)
+                var snapShot = NSDiffableDataSourceSectionSnapshot<DetailItem>()
                 snapShot.append([item])
                 self.currentSnapshot.appendItems([item], toSection: .overview)
                 self.dataSource.apply(snapShot, to: .overview, animatingDifferences: true)
@@ -181,8 +181,8 @@ class DetailViewController: UIViewController {
             .dropFirst()
             .sink { [weak self] cast in
                 guard let self = self else { return }
-                let items = cast.map({ Item(cast: $0) })
-                var snapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+                let items = cast.map({ DetailItem(cast: $0) })
+                var snapShot = NSDiffableDataSourceSectionSnapshot<DetailItem>()
                 snapShot.append(items)
                 self.currentSnapshot.appendItems(items, toSection: .cast)
                 self.dataSource.apply(snapShot, to: .cast, animatingDifferences: true)
@@ -193,8 +193,8 @@ class DetailViewController: UIViewController {
             .dropFirst()
             .sink { [weak self] trailers in
                 guard let self = self else { return }
-                let items = trailers.map({ Item(trailer: $0) })
-                var snapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+                let items = trailers.map({ DetailItem(trailer: $0) })
+                var snapShot = NSDiffableDataSourceSectionSnapshot<DetailItem>()
                 snapShot.append(items)
                 self.currentSnapshot.appendItems(items, toSection: .trailers)
                 self.dataSource.apply(snapShot, to: .trailers, animatingDifferences: true)
@@ -205,8 +205,8 @@ class DetailViewController: UIViewController {
             .dropFirst()
             .sink { [weak self] comments in
                 guard let self = self else { return }
-                let items = comments.map({ Item(review: $0) })
-                var snapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+                let items = comments.map({ DetailItem(review: $0) })
+                var snapShot = NSDiffableDataSourceSectionSnapshot<DetailItem>()
                 snapShot.append(items)
                 self.currentSnapshot.appendItems(items, toSection: .reviews)
                 self.dataSource.apply(snapShot, to: .reviews, animatingDifferences: true)
@@ -381,7 +381,7 @@ extension DetailViewController {
                     self.expandedcell.insert(indexPath.item)
                 }
 
-                self.currentSnapshot.reloadItems([ Item(review: commentInfo) ])
+                self.currentSnapshot.reloadItems([ DetailItem(review: commentInfo) ])
                 self.dataSource.apply(self.currentSnapshot, animatingDifferences: false)
                 self.view.layoutIfNeeded()
             }
@@ -396,8 +396,8 @@ extension DetailViewController {
         let reviewCellRegistration = createReviewCellRegistration()
 
         dataSource = UICollectionViewDiffableDataSource(collectionView: collectionView) {
-            (collectionView: UICollectionView, indexPath: IndexPath, item: Item) -> UICollectionViewCell? in
-            guard let section = Section(rawValue: indexPath.section) else { return nil }
+            (collectionView: UICollectionView, indexPath: IndexPath, item: DetailItem) -> UICollectionViewCell? in
+            guard let section = DetailSection(rawValue: indexPath.section) else { return nil }
             switch section {
             case .main:
                 print("\(item.movieInfo == nil)")
@@ -424,7 +424,7 @@ extension DetailViewController {
 
         dataSource.supplementaryViewProvider = { [weak self] view, kind, index in
             guard let self = self else { return nil }
-            guard let section = Section(rawValue: index.section) else { return nil }
+            guard let section = DetailSection(rawValue: index.section) else { return nil }
             if section != .main {
                 return self.collectionView.dequeueConfiguredReusableSupplementary(using: supplementaryRegistration, for: index)
             }
@@ -432,8 +432,8 @@ extension DetailViewController {
             return nil
         }
 
-        let sections = Section.allCases
-        currentSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        let sections = DetailSection.allCases
+        currentSnapshot = NSDiffableDataSourceSnapshot<DetailSection, DetailItem>()
         currentSnapshot.appendSections(sections)
         dataSource.apply(currentSnapshot, animatingDifferences: false)
     }
@@ -447,7 +447,7 @@ extension DetailViewController {
 
         let sectionProvider = { (sectionIndex: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
 
-            guard let sectionKind = Section(rawValue: sectionIndex) else { return nil }
+            guard let sectionKind = DetailSection(rawValue: sectionIndex) else { return nil }
             let section: NSCollectionLayoutSection
 
             switch sectionKind {

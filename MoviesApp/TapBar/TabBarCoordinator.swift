@@ -30,6 +30,8 @@ class TabBarCoordinator: Coordinator {
         let nav2 = UINavigationController()
         let nav3 = UINavigationController()
         
+        
+        
         tabBarController.setViewControllers([nav1, nav2, nav3], animated: true)
         
         showMainScreen(navigationController: nav1)

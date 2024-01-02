@@ -9,28 +9,42 @@ import Foundation
 import CoreData
 import UIKit
 
-class CoreDataManager {
-    static let shared = CoreDataManager(modelName: "MoviesApp")
+protocol CoreDataManagerProtocol: AnyObject {
     
-    let persistentContainer: NSPersistentContainer
-    var viewContext: NSManagedObjectContext {
+    func createMovieList(name: String)
+    func addMovieToLists(_ lists: [MovieList], title: String, poster: UIImage?, id: Int)
+    func fetchMovies(filter: String?) -> [Movie]
+    func fetchMovies(in list: String) -> [Movie]?
+    func isListInStorage(_ listName: String) -> Bool
+    func fetchMovieLists(filter: String?) -> [MovieList]
+    func fetchListsInWhichMovieIsStored(movieId: Int) -> [MovieList]
+    func fetchListsInWhichMovieIsNotStored(movieId: Int) -> [MovieList]
+    func deleteMovieFromLists(_ lists: [MovieList], movieId: Int)
+    func deleteMovieFromLists(listNames: [String], movieId: Int)
+    func fetchMovie(with id: Int) -> Movie?
+    func deleteMovie(_ movie: Movie)
+    func deleteMovieList(_ movieList: MovieList)
+    
+}
+
+extension CoreDataManagerProtocol {
+    func fetchMovieLists() -> [MovieList] {
+        fetchMovieLists(filter: nil)
+    }
+}
+
+final class CoreDataManager: CoreDataManagerProtocol {
+
+    private let persistentContainer: NSPersistentContainer
+    private var viewContext: NSManagedObjectContext {
         persistentContainer.viewContext
     }
-    
-    private init(modelName: String) {
-        persistentContainer = NSPersistentContainer(name: modelName)
+
+    init(persistentContainer: NSPersistentContainer) {
+        self.persistentContainer = persistentContainer
     }
     
-    func load(completion: (() -> Void)? = nil) {
-        persistentContainer.loadPersistentStores { description, error in
-            if let error {
-                fatalError(error.localizedDescription)
-            }
-            completion?()
-        }
-    }
-    
-    func save() {
+    private func save() {
         if viewContext.hasChanges {
             do {
                 try viewContext.save()
@@ -42,8 +56,6 @@ class CoreDataManager {
     
 }
 
-// MARK: - Helper functions
-
 extension CoreDataManager {
     
     func createMovieList(name: String) {
@@ -53,13 +65,21 @@ extension CoreDataManager {
         save()
     }
     
-    func createAndAddMovieToLists(_ lists: [MovieList], title: String, poster: UIImage?, id: Int) {
-        let movie = Movie(context: viewContext)
-        movie.title = title
-        movie.poster = poster?.pngData()
-        movie.id = Int64(id)
-        movie.dateAdded = Date()
-        movie.movieLists = NSSet(array: lists)
+    func addMovieToLists(_ lists: [MovieList], title: String, poster: UIImage?, id: Int) {
+        if let movie = fetchMovie(with: id) {
+            for list in lists {
+                list.addToMovies(movie)
+            }
+        } else {
+            let movie = Movie(context: viewContext)
+            movie.title = title
+            movie.poster = poster?.pngData()
+            movie.id = Int64(id)
+            movie.dateAdded = Date()
+            for list in lists {
+                list.addToMovies(movie)
+            }
+        }
         save()
     }
     
@@ -123,16 +143,7 @@ extension CoreDataManager {
             return []
         }
     }
-    
-    func isMovieInStorage(movieId: Int) -> Bool {
-        let movies = fetchMovies()
-        if movies.first(where: { $0.id == movieId }) == nil {
-            return false
-        } else {
-            return true
-        }
-    }
-    
+
     func fetchListsInWhichMovieIsStored(movieId: Int) -> [MovieList] {
         var movieLists = fetchMovieLists()
         
@@ -180,9 +191,9 @@ extension CoreDataManager {
     }
     
     func deleteMovieFromLists(listNames: [String], movieId: Int) {
-        
+       
         guard let movieToDelete = fetchMovie(with: movieId)  else { return }
-        
+       
         let lists = fetchMovieLists().filter { movieList in
             if listNames.contains(movieList.name) {
                 return true
@@ -198,6 +209,7 @@ extension CoreDataManager {
         if fetchListsInWhichMovieIsStored(movieId: movieId).isEmpty {
             deleteMovie(movieToDelete)
         }
+
         save()
     }
     

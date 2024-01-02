@@ -10,7 +10,11 @@ import SnapKit
 import RxSwift
 import Combine
 
-class TabBarViewController: UITabBarController {
+protocol TabBarViewControllerProtocol {
+    func changeTabBarVisibility()
+}
+
+class TabBarViewController: UITabBarController, TabBarViewControllerProtocol {
     
     private let customTabBar = CustomTabBar()
     private let disposeBag = DisposeBag()
@@ -31,43 +35,17 @@ class TabBarViewController: UITabBarController {
         }
         
         tabBar.isHidden = true
-        
-        let vc1 = MainViewController()
-        vc1.didTransitionSubject
-            .sink { [weak self] _ in
-                UIView.animate(withDuration: 0.5) {
-                    let opacity = Int(self?.customTabBar.layer.opacity ?? 0)
-                    self?.customTabBar.layer.opacity = opacity == 1 ? 0 : 1
-                }
-               
-            }
-            .store(in: &subscriptions)
-        
-        let vc2 = SearchViewController()
-        let vc3 = MovieListsViewController()
-        
-        vc1.title = "Main"
-        vc2.title = "Search"
-        vc3.title = "Lists"
-        
-        vc1.navigationItem.largeTitleDisplayMode = .always
-        vc2.navigationItem.largeTitleDisplayMode = .always
-        vc3.navigationItem.largeTitleDisplayMode = .always
-        
-        let nav1 = UINavigationController(rootViewController: vc1)
-        let nav2 = UINavigationController(rootViewController: vc2)
-        let nav3 = UINavigationController(rootViewController: vc3)
-        
-        nav1.navigationBar.prefersLargeTitles = true
-        nav2.navigationBar.prefersLargeTitles = true
-        nav3.navigationBar.prefersLargeTitles = true
-        
-        setViewControllers([nav1, nav2, nav3], animated: true)
-        
     }
     
     private func selectTabWith(index: Int) {
         self.selectedIndex = index
+    }
+    
+    public func changeTabBarVisibility() {
+        UIView.animate(withDuration: 0.5) {
+            let opacity = Int(self.customTabBar.layer.opacity)
+            self.customTabBar.layer.opacity = opacity == 1 ? 0 : 1
+        }
     }
     
     // MARK: - Bindings
@@ -77,5 +55,6 @@ class TabBarViewController: UITabBarController {
             .bind { [weak self] in self?.selectTabWith(index: $0) }
             .disposed(by: disposeBag)
     }
-    
 }
+
+

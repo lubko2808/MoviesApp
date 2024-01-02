@@ -14,6 +14,11 @@ struct MovieCastModel: Codable, Hashable {
 
 struct Actor: Codable, Hashable {
     let name: String
-    let profile_path: String?
+    let profilePath: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case profilePath = "profile_path"
+    }
 }
 

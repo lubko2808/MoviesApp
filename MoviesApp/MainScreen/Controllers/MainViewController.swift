@@ -74,7 +74,7 @@ class MainViewController: UIViewController {
             .dropFirst()
             .sink { [weak self] errorMessage in
                 guard let self = self else { return }
-                UIAlertController.showError(with: errorMessage, on: self)
+                self.showError(with: errorMessage)
             }
             .store(in: &subscriptions)
         

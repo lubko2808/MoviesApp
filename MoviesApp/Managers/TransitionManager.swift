@@ -110,7 +110,6 @@ extension TransitionManager: UIViewControllerAnimatedTransitioning {
         containerView.addSubview(cellCopy)
         cell.isHidden = true
         cellCopy.frame.origin = origin
-        print("origin: \(origin)")
         cellCopy.layoutIfNeeded()
 
         whiteView.frame = transition == .presentation ? cellCopy.contentView.frame : containerView.frame

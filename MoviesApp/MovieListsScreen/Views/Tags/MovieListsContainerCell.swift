@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import Combine
 
 class MovieListsContainerCell: UICollectionViewCell {
     
@@ -39,9 +38,9 @@ class MovieListsContainerCell: UICollectionViewCell {
             }
         }
     }
-    
-    public let listSelectedSubject = PassthroughSubject<String, Never>()
-    public let listTappedToDeleteSubject = PassthroughSubject<Int, Never>()
+
+    public var onListSelected: ((String) -> ())?
+    public var onListTappedToDelete: ((Int) -> ())?
     
     private let tagCollectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
@@ -53,7 +52,6 @@ class MovieListsContainerCell: UICollectionViewCell {
 
     static var rowsCount: Int = 0
     
-    private var subscription = Set<AnyCancellable>()
     private var timer: Timer?
     
     override init(frame: CGRect) {
@@ -77,7 +75,8 @@ class MovieListsContainerCell: UICollectionViewCell {
             }
         }
 
-        listTappedToDeleteSubject.send(indexPath.item)
+//        listTappedToDeleteSubject.send(indexPath.item)
+        onListTappedToDelete?(indexPath.item)
         lists.remove(at: indexPath.item)
         tagCollectionView.reloadData()
     }
@@ -158,10 +157,15 @@ extension MovieListsContainerCell: UICollectionViewDelegate {
         currentSelectedCell.contentView.backgroundColor = .blue
         MovieListsContainerCell.selectedTag = indexPath
 
-        listSelectedSubject.send(lists[indexPath.item])
+//        listSelectedSubject.send(lists[indexPath.item])
+        onListSelected?(lists[indexPath.item])
         return true
     }
 
+}
+
+// MARK: - Helpers
+extension MovieListsContainerCell {
     
     private func getTagCollectionViewCellWidth(text: String?) -> CGFloat {
         let label = UILabel()
@@ -185,6 +189,4 @@ extension MovieListsContainerCell: UICollectionViewDelegate {
         let totalHeight = tagLabelHeight + 10
         return totalHeight
     }
-    
-    
 }

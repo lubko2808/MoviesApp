@@ -9,9 +9,9 @@ import Foundation
 import Combine
 
 protocol SearchViewModelProtocol: AnyObject {
-    
+
     var errorPublisher: Published<String>.Publisher { get }
-    var moviesPublisher: Published<[SearchViewController.Item]>.Publisher { get }
+    var moviesPublisher: Published<[MovieInfo]>.Publisher { get }
     
     var query: String { get set }
     var genre: Genre  { get set }
@@ -26,23 +26,30 @@ protocol SearchViewModelProtocol: AnyObject {
     
     func cancelTask()
     
-    func searchMovies(shouldStartFromBeginning: Bool)
-    
+    func searchMovies(startFromBeginning: Bool)
+    func fetchListsInWhichMovieIsStored(moviedId: Int) -> [MovieList]
+        
 }
 
 final class SearchViewModel: SearchViewModelProtocol {
 
     private let networkManager: NetworkManagerProtocol
+    private let coreDataManager: CoreDataManagerProtocol
 
-    init(networkManager: NetworkManagerProtocol) {
+    init(networkManager: NetworkManagerProtocol, coreDataManager: CoreDataManagerProtocol) {
         self.networkManager = networkManager
+        self.coreDataManager = coreDataManager
+    }
+    
+    public func fetchListsInWhichMovieIsStored(moviedId: Int) -> [MovieList] {
+        coreDataManager.fetchListsInWhichMovieIsStored(movieId: moviedId)
     }
 
     @Published private var error: String = ""
     var errorPublisher: Published<String>.Publisher { $error }
     
-    @Published private var movies: [SearchViewController.Item] = []
-    var moviesPublisher: Published<[SearchViewController.Item]>.Publisher { $movies }
+    @Published private var movies: [MovieInfo] = []
+    var moviesPublisher: Published<[MovieInfo]>.Publisher { $movies }
     
     public var query: String = ""
     public var genre: Genre = .all
@@ -62,75 +69,68 @@ final class SearchViewModel: SearchViewModelProtocol {
     }
     
     private var task: Task<Void, Error>?
+    
     // MARK: - Search
     
     private var allMovies: [SearchMovieInfo] = []
     private var filteredMovies: [SearchMovieInfo] = []
     private var tempMovies: [SearchMovieInfo] = []
-    public func searchMovies(shouldStartFromBeginning: Bool) {
+    
+    @MainActor
+    public func searchMovies(startFromBeginning: Bool) {
         task?.cancel()
-        if shouldStartFromBeginning { page = 1 }
-        print("page: \(page)")
+        if startFromBeginning { page = 1 }
         isPaginating = true
-        printValues()
         task = Task {
             filteredMovies = []
             do {
                 while true {
+//                    if query == "" {
+//                        self.movies = []
+//                        return
+//                    }
+                    
                     let model: SearchMovieModel = try await networkManager.fetch(Endpoint.movieSearch(
                         query: query, page: page,
                         isAdultIncluded: includeAdult,
                         year: year)
                     )
+                    
+                    
                     let totalPages = model.totalPages
                     allMovies = model.results
                     tempMovies = []
                     filterBasedOnGenre()
                     filterBasedOnRating()
-                    print("after rating filtration:")
-                    print(filteredMovies)
                     filterBasedOnTotalVotes()
-                    print("after total votes filtration:")
-                    print(filteredMovies)
                     filterBasedOnDecade()
                     filterBasedOnPrimaryLanguage()
                     
                     page += 1
-                    
+
                     filteredMovies.append(contentsOf: tempMovies)
                     guard filteredMovies.count <= 5 else {
-                        let movies = filteredMovies.map { movie in
-                            SearchViewController.Item(movie: MovieInfo(title: movie.title, posterPath: movie.posterPath, id: movie.id))
-                        }
-                        await MainActor.run {
-                            self.isPaginating = false
-                            self.movies = movies
-                        }
-                        break
+                        let movies = filteredMovies.map {MovieInfo(title: $0.title, posterPath: $0.posterPath, id: $0.id)}
+                        self.isPaginating = false
+                        self.movies = movies
+                        return
                     }
                     
-    
                     if page > totalPages {
-                        let movies = filteredMovies.map { movie in
-                            SearchViewController.Item(movie: MovieInfo(title: movie.title, posterPath: movie.posterPath, id: movie.id))
-                        }
-                        await MainActor.run {
-                            self.movies = movies 
-                        }
-                        break
+                        let movies = filteredMovies.map { MovieInfo(title: $0.title, posterPath: $0.posterPath, id: $0.id) }
+                        self.movies = movies
+                        return
                     }
                     
                 }
             } catch let error as NSError {
                 if !(error.domain == NSURLErrorDomain && error.code == -999) {
-                    await MainActor.run {
-                        self.error = error.localizedDescription
-                    }
+                    self.error = error.localizedDescription
                 }
             }
         }
     }
-    
+        
     // MARK: - Helpers
     private func convertRatingToDouble() -> Double {
         if let rating {

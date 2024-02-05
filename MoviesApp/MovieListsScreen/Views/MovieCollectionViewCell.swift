@@ -34,14 +34,14 @@ class MovieCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
      
-    public func configure(with image: UIImage?) {
-        guard let image = image else {
+    public func configure(with imageData: Data?) {
+        guard let image = UIImage(data: imageData ?? Data()) else {
             posterImageView.image = GlobalConstants.defaultImage
-            return 
+            return
         }
         posterImageView.image = image
     }
-
+    
     private func setupView() {
         contentView.layer.masksToBounds = false
         contentView.layer.shadowColor = UIColor.black.cgColor

@@ -7,23 +7,23 @@
 
 import UIKit
 
-struct DetailCollectionViewCellConfiguration {
-    
-    init(posterImage: UIImage, title: String, tagline: String, averageVote: Double, genres: [Genre], duration: Int) {
-        self.posterImage = posterImage
-        self.title = title
-        self.tagline = tagline
-        self.averageVote = averageVote
-        self.genres = genres
-        self.duration = duration
-    }
-    
+struct DetailCollectionViewCellViewModel {
+
     let posterImage: UIImage
     let title: String
     let tagline: String
     private let averageVote: Double
     private let genres: [Genre]
     private let duration: Int
+    
+    init(detailMovieModel: DetailMovieModel) {
+        self.posterImage = detailMovieModel.posterImage
+        self.title = detailMovieModel.title
+        self.tagline = detailMovieModel.tagline
+        self.averageVote = detailMovieModel.voteAverage
+        self.genres = detailMovieModel.genres.map({ Genre(rawValue: $0.name) ?? .all })
+        self.duration = detailMovieModel.runtime
+    }
     
     public func getStars() -> Int {
         if averageVote >= 0 && averageVote < 3 {
@@ -217,17 +217,17 @@ class DetailCollectionViewCell: UICollectionViewCell {
         static let posterImageAspectRatio: CGFloat = 3 / 2
     }
     
-    public func configureCell(with config: DetailCollectionViewCellConfiguration) {
-        posterImageView.image = config.posterImage
-        titleLabel.text = config.title
-        taglineLabel.text = config.tagline
+    public func configureCell(with viewModel: DetailCollectionViewCellViewModel) {
+        posterImageView.image = viewModel.posterImage
+        titleLabel.text = viewModel.title
+        taglineLabel.text = viewModel.tagline
         
-        for star in 0..<config.getStars() {
+        for star in 0..<viewModel.getStars() {
             starImageViews[star].image =  UIImage(systemName: "star.fill")?.withTintColor(Constants.starImageColor, renderingMode: .alwaysOriginal)
         }
 
-        genresLabel.text = config.getGenres()
-        durationLabel.text = config.getDuration()
+        genresLabel.text = viewModel.getGenres()
+        durationLabel.text = viewModel.getDuration()
     }
     
 }

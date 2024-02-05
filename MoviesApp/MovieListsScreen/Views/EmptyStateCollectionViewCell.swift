@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DefaultCollectionViewCell: UICollectionViewCell {
+class EmptyStateCollectionViewCell: UICollectionViewCell {
     
     private let messageLabel: UILabel = {
         let label = UILabel()

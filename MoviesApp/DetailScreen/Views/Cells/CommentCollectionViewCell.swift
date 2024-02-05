@@ -7,20 +7,19 @@
 
 import UIKit
 
-struct CommentCollectionViewCellConfiguration {
-    
+class CommentCollectionViewCellViewModel {
     let avatarImageUrl: String?
     let name: String
     let comment: String
     private let date: String
     private let ratings: Double
     
-    init(avatarImageUrl: String?, name: String, comment: String, date: String, ratings: Double) {
-        self.avatarImageUrl = avatarImageUrl
-        self.name = name
-        self.comment = comment
-        self.date = date
-        self.ratings = ratings
+    init(review: Review) {
+        self.avatarImageUrl = review.authorDetails.avatarPath
+        self.name = review.author
+        self.comment = review.content
+        self.date = review.createdAt
+        self.ratings = review.authorDetails.rating ?? 0
     }
     
     public func getDate() -> String? {
@@ -52,7 +51,6 @@ struct CommentCollectionViewCellConfiguration {
     public func getRatings() -> String {
         "\(Int(ratings))/10"
     }
-    
 }
 
 class CommentCollectionViewCell: UICollectionViewCell {
@@ -124,21 +122,20 @@ class CommentCollectionViewCell: UICollectionViewCell {
         }
     }
     
-    public func configure(with config: CommentCollectionViewCellConfiguration) {
-        nameLabel.text = config.name
-        commentLabel.text = config.comment
-        dateLabel.text = config.getDate()
-        ratings.text = config.getRatings()
+    public func configure(with viewModel: CommentCollectionViewCellViewModel) {
+        nameLabel.text = viewModel.name
+        commentLabel.text = viewModel.comment
+        dateLabel.text = viewModel.getDate()
+        ratings.text = viewModel.getRatings()
         
         hideMoreButtonIfNeeded()
         
-        guard let avatarImageUrl = config.avatarImageUrl else {
+        guard let avatarImageUrl = viewModel.avatarImageUrl else {
             activityIndicatorView.stopAnimating()
             avatarImageView.image = GlobalConstants.defaultImage
             return
         }
         getImage(for: avatarImageUrl)
-        
     }
     
     private func hideMoreButtonIfNeeded() {

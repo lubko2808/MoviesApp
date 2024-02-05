@@ -25,20 +25,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // MARK: UISceneSession Lifecycle
         
-        func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-            return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
-        }
-        
-        // MARK: - Core Data stack
-        //    lazy var presistenceContainer: NSPersistentContainer = {
-        //        let container = NSPersistentContainer(name: "MoviesApp")
-        //        container.loadPersistentStores { description, error in
-        //            if let error {
-        //                print(error)
-        //            }
-        //        }
-        //        return container
-        //    }()
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
         
     var presistenceContainer: NSPersistentContainer!
 }

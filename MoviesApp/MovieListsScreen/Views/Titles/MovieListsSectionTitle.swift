@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-protocol MovieListsSectionTitleProtocol: AnyObject {
+protocol MovieListsSectionTitleDelegate: AnyObject {
     func didTapAddListButton(_ listName: String) -> String?
     func keyboardIsInvoked()
 }
@@ -17,7 +17,7 @@ class MovieListsSectionTitle: UICollectionReusableView {
     
     var shouldAddNewList: ((_ listName: String) -> (String?))?
     
-    weak var delegate: MovieListsSectionTitleProtocol?
+    weak var delegate: MovieListsSectionTitleDelegate?
     
     let titleLabel: UILabel = {
         let label = UILabel()

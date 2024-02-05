@@ -23,9 +23,7 @@ class MainScreenDataSource: UICollectionViewDiffableDataSource<MainScreenCollect
         }
         
         let supplementaryRegistration = UICollectionView.SupplementaryRegistration<TitleSupplementaryView>(elementKind: Constants.titleElementKind) { supplementaryView, elementKind, indexPath in
-            
-            supplementaryView.label.text = MainScreenCollectionView.Section.intToSection(section: indexPath.item)?.rawValue
-    
+            supplementaryView.label.text = MainScreenCollectionView.Section.intToSection(section: indexPath.section)?.rawValue
         }
         
         supplementaryViewProvider = { view, kind, index in

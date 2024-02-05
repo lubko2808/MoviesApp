@@ -19,10 +19,10 @@ class ScreenFactory {
     }
     
     func createSearchScreen() -> SearchViewController {
-        let viewModel = SearchViewModel(networkManager: NetworkManager())
         let persistenceContainer = AppDelegate.shared.presistenceContainer!
         let coreDataManager = CoreDataManager(persistentContainer: persistenceContainer)
-        let controller = SearchViewController(viewModel: viewModel, coreDataManager: coreDataManager)
+        let viewModel = SearchViewModel(networkManager: NetworkManager(), coreDataManager: coreDataManager)
+        let controller = SearchViewController(viewModel: viewModel)
         return controller
     }
     

@@ -76,5 +76,7 @@ class MainScreenCollectionView: UICollectionView {
         currentSnapshot.appendItems(movies, toSection: sectionidentifier)
         diffDataSource.apply(currentSnapshot, animatingDifferences: true)
     }
+    
+    
 
 }
